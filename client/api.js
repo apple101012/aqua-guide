@@ -155,18 +155,22 @@ async function fetchJson(url, options) {
 }
 
 export function sendAssistantMessage(payload) {
-  return fetchJson("/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  }).catch(() => ({
+  const fallback = () => ({
     text: buildLocalizedAssistantFallback({
       question: payload?.question || "",
       language: normalizeLanguage(payload?.language || "en"),
       location: payload?.locationContext || null
     }),
     meta: "Aqua Guide local guidance"
-  }));
+  });
+
+  return fetchJson("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+    .then((response) => (trimValue(response?.text || "", 4000) ? response : fallback()))
+    .catch(() => fallback());
 }
