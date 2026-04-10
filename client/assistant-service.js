@@ -126,12 +126,10 @@ export function toAssistantLocationContext(region, liveData) {
           .filter((action) => action.title)
       : [],
     liveData: {
-      drinkingWater: trimValue(liveData?.drinkingWater?.display, 40),
-      sanitation: trimValue(liveData?.sanitation?.display, 40),
-      population: trimValue(liveData?.population?.display, 40),
-      weather: liveData?.weather
-        ? trimValue(`${liveData.weather.temperatureC}°C, ${liveData.weather.label}`, 120)
-        : "",
+      drinkingWater: trimValue(region?.liveData?.drinkingWater || "", 40),
+      sanitation: trimValue(region?.liveData?.sanitation || "", 40),
+      population: trimValue(region?.liveData?.population || "", 40),
+      weather: trimValue(region?.liveData?.weather || "", 120),
       updated: trimValue(region?.metrics?.updated || "Live public data", 80)
     }
   };

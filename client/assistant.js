@@ -1,4 +1,4 @@
-import { getRegionDetails, resolveRegionCoordinates, resolveRegionQuery, sendAssistantMessage } from "./api.js";
+import { getRegionDetails, resolveRegionCoordinates, resolveRegionQuery, sendAssistantMessage } from "./assistant-service.js";
 import {
   bindLanguageButtons,
   escapeAttribute,
