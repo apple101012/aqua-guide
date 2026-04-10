@@ -9,7 +9,13 @@ The app is now structured as a real multi-page product instead of a single long 
   - Priority region spotlight
   - Region search
   - Region cards
+  - Global map entry point
   - Assistant teaser
+- `map/index.html`
+  - Interactive world map
+  - Clickable country severity layer
+  - Country drawer with guidance and assistant handoff
+  - Fast search handoff for city and country guidance
 - `region/index.html`
   - Region-specific guidance
   - Live context cards
@@ -33,16 +39,13 @@ The app is now structured as a real multi-page product instead of a single long 
 - static file serving
 - security headers and CSP
 - OpenAI chat proxying
-- live geocoding and reverse geocoding
-- live World Bank indicator fetching
-- live weather fetching
-- response caching for public APIs
 - simple per-IP rate limiting for the chat route
 
 ## What is live versus curated
 
 Live:
 
+- generated country-level world map data
 - country-level water access indicators
 - country-level sanitation indicators
 - country-level population
@@ -69,12 +72,13 @@ That split is intentional. A usable product needs real public signals, but it al
 ## Validation status
 
 - `npm run test:functional` passes
+- `npm run test:live-smoke` passes
 - `npm run screenshots:presentation` passes
 
 ## Security notes
 
 - `.env` stays gitignored
 - secrets are not committed
-- chat responses are escaped in the UI
+- chat responses render through a restricted escaped formatting layer
 - the chat route is rate-limited
 - CSP and related hardening headers are applied on every response

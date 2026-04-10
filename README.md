@@ -13,8 +13,10 @@ Aqua Guide is a multi-page web application for water guidance in places facing s
 - Separate product pages for:
   - home
   - region guidance
+  - global map
   - multilingual AI assistant
   - resources
+- Interactive country map with a generated country-risk dataset and clickable guidance handoff
 - Live country indicators from the World Bank
 - Live weather and place search from Open-Meteo
 - Reverse geocoding via BigDataCloud
@@ -55,6 +57,12 @@ Run the automated browser flow:
 npm run test:functional
 ```
 
+Refresh the generated country map dataset:
+
+```bash
+npm run build:map-data
+```
+
 Generate the current presentation screenshots:
 
 ```bash
@@ -74,12 +82,17 @@ If your Obsidian vault is not under `~/Documents/Github/my-notes`, set `OBSIDIAN
 
 - `index.html`: homepage shell
 - `region/index.html`: region detail page
+- `map/index.html`: interactive world risk map
 - `assistant/index.html`: assistant page
 - `resources/index.html`: resource page
 - `client/`: page controllers and shared browser utilities
 - `data/regions.js`: featured launch profiles and search helpers
+- `data/country-water-index.js`: generated country-level water risk dataset
+- `data/world-countries.geo.json`: local world geometry for the map
 - `client/location-service.js`: public API orchestration for place search and live context
+- `client/map.js`: map page controller
 - `server.mjs`: static hosting plus assistant and health endpoints
+- `scripts/build-country-water-index.mjs`: dataset generation for the map
 - `scripts/test-functional.mjs`: end-to-end validation
 - `scripts/test-live-smoke.mjs`: live upstream smoke check
 - `scripts/capture-presentation.mjs`: screenshot capture

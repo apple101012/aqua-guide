@@ -24,15 +24,138 @@ const lastLocationStorageKey = "aqua-guide-last-location";
 const activeLocationStorageKey = "aqua-guide-active-location";
 
 export const languageCatalog = {
-  en: { label: "English", placeholder: "Ask about safe water, treatment, storage, or translation..." },
-  es: { label: "Spanish", placeholder: "Pregunta sobre agua segura, tratamiento, almacenamiento o traduccion..." },
-  fr: { label: "French", placeholder: "Posez une question sur la sécurité de l'eau, le traitement ou la traduction..." },
-  sw: { label: "Swahili", placeholder: "Uliza kuhusu maji salama, matibabu, uhifadhi, au tafsiri..." },
-  ar: { label: "Arabic", placeholder: "اسأل عن سلامة المياه أو المعالجة أو التخزين أو الترجمة..." },
-  bn: { label: "Bengali", placeholder: "নিরাপদ পানি, চিকিৎসা, সংরক্ষণ, বা অনুবাদ সম্পর্কে জিজ্ঞেস করুন..." },
-  pt: { label: "Portuguese", placeholder: "Pergunte sobre agua segura, tratamento, armazenamento ou traducao..." },
-  ht: { label: "Haitian Creole", placeholder: "Poze kestyon sou dlo pwop, tretman, depo, oswa tradiksyon..." }
+  en: {
+    label: "English",
+    placeholder: "Ask about safe water, treatment, storage, or translation...",
+    intro: "I can explain {place}, answer treatment questions, or translate the plan for another audience.",
+    sampleQuestion: "What should a family in {place} do first?",
+    sampleAnswer:
+      "**First step:** Find the cleanest available water, treat it, and reserve that treated water for drinking, medicine, and children first.",
+    suggestionTemplates: [
+      "What should a family in {place} do first?",
+      "How should safe water be stored at home?",
+      "What water should be reserved for medicine and babies?",
+      "Summarize this for a volunteer team."
+    ]
+  },
+  es: {
+    label: "Spanish",
+    placeholder: "Pregunta sobre agua segura, tratamiento, almacenamiento o traduccion...",
+    intro: "Puedo explicar la orientacion para {place}, responder preguntas de tratamiento o traducir el plan.",
+    sampleQuestion: "Cual es el primer paso para una familia en {place}?",
+    sampleAnswer:
+      "**Primer paso:** Busca el agua mas limpia disponible, tratalo primero y reserva esa agua tratada para beber, medicina y ninos.",
+    suggestionTemplates: [
+      "Cual es el primer paso para una familia en {place}?",
+      "Como se debe guardar el agua segura en casa?",
+      "Que agua debe reservarse para medicina y bebes?",
+      "Resume esto para voluntarios."
+    ]
+  },
+  fr: {
+    label: "French",
+    placeholder: "Posez une question sur la securite de l'eau, le traitement ou la traduction...",
+    intro: "Je peux expliquer les conseils pour {place}, repondre aux questions de traitement ou traduire le plan.",
+    sampleQuestion: "Quelle est la premiere etape pour une famille a {place} ?",
+    sampleAnswer:
+      "**Premiere etape :** trouvez l'eau la plus propre disponible, traitez-la d'abord, puis reservez cette eau traitee a la boisson, aux medicaments et aux enfants.",
+    suggestionTemplates: [
+      "Quelle est la premiere etape pour une famille a {place} ?",
+      "Comment conserver l'eau potable a la maison ?",
+      "Quelle eau faut-il reserver aux medicaments et aux bebes ?",
+      "Resume ceci pour une equipe terrain."
+    ]
+  },
+  sw: {
+    label: "Swahili",
+    placeholder: "Uliza kuhusu maji salama, matibabu, uhifadhi, au tafsiri...",
+    intro: "Naweza kueleza mwongozo wa {place}, kujibu maswali ya kutibu maji, au kutafsiri mpango.",
+    sampleQuestion: "Familia ya {place} inapaswa kuanza na hatua gani ya kwanza?",
+    sampleAnswer:
+      "**Hatua ya kwanza:** Chagua maji yaliyo safi zaidi, yatibu kwanza, halafu yahifadhi kwa kunywa, dawa, na watoto.",
+    suggestionTemplates: [
+      "Familia ya {place} inapaswa kuanza na hatua gani ya kwanza?",
+      "Maji salama yanapaswa kuhifadhiwaje nyumbani?",
+      "Ni maji gani yahifadhiwe kwa dawa na watoto?",
+      "Fupisha hii kwa timu ya wajitolea."
+    ]
+  },
+  ar: {
+    label: "Arabic",
+    placeholder: "اسأل عن سلامة المياه أو المعالجة أو التخزين أو الترجمة...",
+    intro: "يمكنني شرح إرشادات {place} والرد على أسئلة المعالجة أو ترجمة الخطة.",
+    sampleQuestion: "ما الخطوة الأولى التي يجب أن تبدأ بها الأسرة في {place}؟",
+    sampleAnswer:
+      "**الخطوة الأولى:** ابحث عن أنظف مياه متاحة، عالجها أولاً، ثم خصص هذه المياه المعالجة للشرب والدواء والأطفال.",
+    suggestionTemplates: [
+      "ما الخطوة الأولى التي يجب أن تبدأ بها الأسرة في {place}؟",
+      "كيف يجب تخزين مياه الشرب في المنزل؟",
+      "أي مياه يجب حفظها للدواء والأطفال؟",
+      "لخص هذا لفريق المتطوعين."
+    ]
+  },
+  bn: {
+    label: "Bengali",
+    placeholder: "নিরাপদ পানি, চিকিৎসা, সংরক্ষণ, বা অনুবাদ সম্পর্কে জিজ্ঞেস করুন...",
+    intro: "আমি {place} সম্পর্কে নির্দেশনা ব্যাখ্যা করতে, পানি পরিশোধন নিয়ে উত্তর দিতে, বা পরিকল্পনা অনুবাদ করতে পারি।",
+    sampleQuestion: "{place} এর একটি পরিবারের প্রথমে কী করা উচিত?",
+    sampleAnswer:
+      "**প্রথম ধাপ:** সবচেয়ে পরিষ্কার পানিটা আগে খুঁজুন, সেটা পরিশোধন করুন, তারপর সেই পানি পান, ওষুধ আর শিশুদের জন্য সংরক্ষণ করুন।",
+    suggestionTemplates: [
+      "{place} এর একটি পরিবারের প্রথমে কী করা উচিত?",
+      "বাড়িতে নিরাপদ পানি কীভাবে সংরক্ষণ করতে হবে?",
+      "ওষুধ ও শিশুদের জন্য কোন পানি আলাদা রাখতে হবে?",
+      "এটা স্বেচ্ছাসেবক দলের জন্য সংক্ষেপে বলো।"
+    ]
+  },
+  pt: {
+    label: "Portuguese",
+    placeholder: "Pergunte sobre agua segura, tratamento, armazenamento ou traducao...",
+    intro: "Posso explicar a orientacao para {place}, responder perguntas sobre tratamento ou traduzir o plano.",
+    sampleQuestion: "Qual e o primeiro passo para uma familia em {place}?",
+    sampleAnswer:
+      "**Primeiro passo:** Encontre a agua mais limpa disponivel, trate primeiro e reserve essa agua tratada para beber, remedios e criancas.",
+    suggestionTemplates: [
+      "Qual e o primeiro passo para uma familia em {place}?",
+      "Como a agua segura deve ser armazenada em casa?",
+      "Que agua deve ser reservada para remedios e bebes?",
+      "Resuma isto para voluntarios."
+    ]
+  },
+  ht: {
+    label: "Haitian Creole",
+    placeholder: "Poze kestyon sou dlo pwop, tretman, depo, oswa tradiksyon...",
+    intro: "Mwen ka eksplike gid pou {place}, reponn kestyon sou tretman dlo, oswa tradui plan an.",
+    sampleQuestion: "Ki premye etap yon fanmi nan {place} ta dwe pran?",
+    sampleAnswer:
+      "**Premye etap:** Chwazi dlo ki pi pwop la, trete l an premye, epi kenbe dlo trete sa a pou bwason, medikaman, ak timoun.",
+    suggestionTemplates: [
+      "Ki premye etap yon fanmi nan {place} ta dwe pran?",
+      "Kijan dlo pwop la dwe estoke lakay?",
+      "Ki dlo ki dwe rete pou medikaman ak tibebe?",
+      "Rezime sa pou yon ekip volontè."
+    ]
+  }
 };
+
+function fillLanguageTemplate(template, values) {
+  return String(template || "").replaceAll(/\{(\w+)\}/g, (_, key) => values[key] ?? "");
+}
+
+export function getLanguageExperience(language, region) {
+  const config = languageCatalog[language] || languageCatalog.en;
+  const place = region?.name || "this place";
+  return {
+    label: config.label,
+    placeholder: config.placeholder,
+    intro: fillLanguageTemplate(config.intro, { place }),
+    sampleQuestion: fillLanguageTemplate(config.sampleQuestion, { place }),
+    sampleAnswer: fillLanguageTemplate(config.sampleAnswer, { place }),
+    suggestions: (config.suggestionTemplates || languageCatalog.en.suggestionTemplates).map((template) =>
+      fillLanguageTemplate(template, { place })
+    )
+  };
+}
 
 export function escapeHtml(value) {
   return String(value)
@@ -235,6 +358,7 @@ function renderNavLinks(basePath, active) {
   const navLinks = [
     { id: "home", href: `${basePath}`, label: "Home" },
     { id: "regions", href: `${basePath}region/`, label: "Regions" },
+    { id: "map", href: `${basePath}map/`, label: "Map" },
     { id: "assistant", href: `${basePath}assistant/`, label: "Assistant" },
     { id: "resources", href: `${basePath}resources/`, label: "Resources" }
   ];

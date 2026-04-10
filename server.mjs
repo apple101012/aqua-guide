@@ -13,6 +13,7 @@ const openAiModel = process.env.OPENAI_MODEL || envConfig.OPENAI_MODEL || "gpt-4
 
 const types = {
   ".css": "text/css; charset=utf-8",
+  ".geojson": "application/geo+json; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
@@ -22,7 +23,7 @@ const types = {
 };
 
 const rateLimits = new Map();
-const staticRoots = new Set(["assistant", "client", "data", "region", "resources"]);
+const staticRoots = new Set(["assistant", "client", "data", "map", "region", "resources", "vendor"]);
 const staticFiles = new Set(["index.html", "styles.css"]);
 
 function parseDotEnv(contents) {
@@ -62,7 +63,7 @@ function applySecurityHeaders(res) {
     [
       "default-src 'self'",
       "script-src 'self'",
-      "style-src 'self'",
+      "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "connect-src 'self' https://api.openai.com https://api.open-meteo.com https://geocoding-api.open-meteo.com https://api.worldbank.org https://restcountries.com https://api-bdc.net",
       "object-src 'none'",
@@ -193,6 +194,8 @@ Rules:
 - Do not claim to be an official emergency alert feed.
 - If the question implies an urgent medical or safety emergency, tell the user to contact local health authorities, trusted responders, or emergency services.
 - Respond in the requested language.
+- Formatting contract: you may use short paragraphs, numbered lists, bullet lists, and **bold** for emphasis.
+- Do not use headings, tables, raw HTML, code fences, or markdown links.
 
 Place context:
 - Name: ${location?.name ?? "No active place"}
@@ -236,11 +239,14 @@ async function handleChat(req, res) {
     return;
   }
 
+  let language = "en";
+  let location = null;
+
   try {
     const body = await readJsonBody(req);
     const question = cleanAssistantValue(body.question, 1500);
-    const language = cleanAssistantValue(body.language || "en", 12).toLowerCase();
-    const location = resolveAssistantLocation(body);
+    language = cleanAssistantValue(body.language || "en", 12).toLowerCase();
+    location = resolveAssistantLocation(body);
     const conversation = normalizeConversation(body.conversation);
 
     if (!question) {
@@ -291,7 +297,7 @@ async function handleChat(req, res) {
     });
   } catch (error) {
     sendJson(res, 200, {
-      text: buildFallbackResponse({ language: "en", location: null }),
+      text: buildFallbackResponse({ language, location }),
       meta: error instanceof Error ? error.message : "Aqua Guide fallback guidance"
     });
   }

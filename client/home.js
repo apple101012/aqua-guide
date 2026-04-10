@@ -12,6 +12,29 @@ import {
   setDocumentTitle
 } from "./common.js";
 
+function renderMapPromo() {
+  return `
+    <section class="map-promo">
+      <div class="map-promo-copy">
+        <p class="section-label">Global view</p>
+        <h2>See water-access pressure across the world in one click</h2>
+        <p>Open the interactive country map to compare risk, inspect country-level access indicators, and jump directly into guidance for any country you select.</p>
+      </div>
+      <div class="map-promo-card">
+        <div class="map-promo-stat">
+          <span>Coverage</span>
+          <strong>Every country</strong>
+        </div>
+        <div class="map-promo-stat">
+          <span>View</span>
+          <strong>Interactive world map</strong>
+        </div>
+        <a class="primary-button" href="./map/">Open map</a>
+      </div>
+    </section>
+  `;
+}
+
 function init() {
   renderShell({ basePath: "./", activeNav: "home" });
   setDocumentTitle("");
@@ -35,6 +58,7 @@ function init() {
         </div>
         <div class="region-grid">${regionCards}</div>
       </section>
+      ${renderMapPromo()}
       ${renderHowItWorks()}
       ${renderAssistantTeaser("./")}
     </div>

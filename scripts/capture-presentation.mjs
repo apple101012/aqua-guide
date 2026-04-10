@@ -170,6 +170,23 @@ try {
     });
   });
 
+  await context.route(`${baseUrl}/api/chat`, async (route) => {
+    const body = JSON.parse(route.request().postData() || "{}");
+    const language = String(body.language || "en").toLowerCase();
+    const text =
+      language === "fr"
+        ? "**Resume :**\n1. Trouvez l'eau la plus propre.\n2. Traitez-la d'abord.\n3. Gardez cette eau pour boire et pour les medicaments."
+        : "**Summary:**\n1. Find the cleanest water.\n2. Treat it first.\n3. Reserve treated water for drinking and medicine.";
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        text,
+        meta: "presentation-assistant"
+      })
+    });
+  });
+
   const page = await context.newPage();
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
@@ -204,6 +221,17 @@ try {
   await page.click("#useLocationButton");
   await page.waitForFunction(() => document.querySelector("h1")?.textContent?.includes("Nairobi"));
   await page.screenshot({ path: path.join(outputDir, "06-region-geolocation.png"), fullPage: false });
+
+  await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
+  await page.screenshot({ path: path.join(outputDir, "07-map-overview.png"), fullPage: false });
+  await page.evaluate(() => {
+    document.querySelector(".leaflet-interactive[data-iso3='KEN']")?.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true })
+    );
+  });
+  await page.waitForFunction(() => document.querySelector("#mapDrawer")?.textContent?.includes("Kenya"));
+  await page.screenshot({ path: path.join(outputDir, "08-map-kenya-drawer.png"), fullPage: false });
 
   await browser.close();
 } finally {

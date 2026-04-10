@@ -83,6 +83,7 @@ try {
     geolocation: { latitude: -1.286389, longitude: 36.817223 },
     permissions: ["geolocation", "clipboard-read", "clipboard-write"]
   });
+  const assistantRequests = [];
 
   await context.route("https://geocoding-api.open-meteo.com/**", async (route) => {
     const url = new URL(route.request().url());
@@ -192,6 +193,38 @@ try {
     });
   });
 
+  await context.route(`${baseUrl}/api/chat`, async (route) => {
+    const body = JSON.parse(route.request().postData() || "{}");
+    assistantRequests.push(body);
+    assert.equal(
+      JSON.stringify(body.conversation || []).includes("Working through the safest possible answer for this location..."),
+      false
+    );
+
+    const language = String(body.language || "en").toLowerCase();
+    const question = String(body.question || "");
+    let text =
+      "For Nairobi, start with the cleanest water, treat it first, and reserve that treated water for drinking and medicine.";
+
+    if (language === "es") {
+      text =
+        "Para Nairobi, usa primero el agua mas limpia, tratalo antes de beber y guardalo en un recipiente cubierto para medicina y ninos.";
+    }
+
+    if (question.includes("format-test")) {
+      text = "**Summary:**\n1. **Find the cleanest water** available.\n2. **Treat** it first.\n3. Reserve treated water for drinking and medicine.";
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        text,
+        meta: "test-assistant"
+      })
+    });
+  });
+
   const page = await context.newPage();
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
@@ -232,6 +265,7 @@ try {
 
   await page.click("[data-language='es']");
   await expectText(page, "#assistantLanguageFootnote", "Spanish");
+  await expectText(page, "#assistantLanguagePreview", "Cual es el primer paso");
   const assistantCountBeforeFollowUp = await page.locator(".message.assistant").count();
   await page.click("[data-question]");
   await page.waitForFunction((beforeCount) => {
@@ -241,6 +275,27 @@ try {
   }, assistantCountBeforeFollowUp);
   const assistantReply = await page.locator(".message.assistant:last-child .message-bubble").textContent();
   assert.match(assistantReply ?? "", /Para|agua|Nairobi|segura/i);
+  const beforeExampleAssistantCount = await page.locator(".message.assistant").count();
+  await page.click("[data-language-example='es']");
+  await page.waitForFunction((beforeCount) => {
+    const assistants = Array.from(document.querySelectorAll(".message.assistant"));
+    const text = assistants.at(-1)?.querySelector(".message-bubble")?.textContent ?? "";
+    return assistants.length > beforeCount && !text.includes("Working through the safest possible answer for this location...");
+  }, beforeExampleAssistantCount);
+  assert.match(String(assistantRequests.at(-1)?.question || ""), /Cual es el primer paso/i);
+
+  const beforeMarkdownAssistantCount = await page.locator(".message.assistant").count();
+  await page.fill("#assistantInput", "format-test");
+  await page.click("#assistantSendButton");
+  await page.waitForFunction((beforeCount) => {
+    const assistants = Array.from(document.querySelectorAll(".message.assistant"));
+    const text = assistants.at(-1)?.querySelector(".message-bubble")?.textContent ?? "";
+    return assistants.length > beforeCount && !text.includes("Working through the safest possible answer for this location...");
+  }, beforeMarkdownAssistantCount);
+  const markdownHtml = await page.locator(".message.assistant:last-child .message-bubble").innerHTML();
+  assert.equal(markdownHtml.includes("**"), false);
+  assert.equal(markdownHtml.includes("<strong>Summary:</strong>"), true);
+  assert.equal(markdownHtml.includes("<ol>"), true);
 
   await page.fill("#assistantInput", "<img src=x onerror=window.__xssFlag=1>");
   await page.click("#assistantSendButton");
@@ -276,6 +331,30 @@ try {
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await expectText(page, ".saved-chip", "Nairobi, Nairobi County, Kenya");
+
+  await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
+  await expectText(page, "h1", "Country water risk map");
+  await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
+  await page.evaluate(() => {
+    document.querySelector(".leaflet-interactive[data-iso3='KEN']")?.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true })
+    );
+  });
+  await expectText(page, "#mapDrawer", "Kenya");
+  await page.click("#mapOpenGuidance");
+  await page.waitForURL(/\/region\/\?lat=/);
+  await expectText(page, "h1", "Kenya");
+
+  await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
+  await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
+  await page.evaluate(() => {
+    document.querySelector(".leaflet-interactive[data-iso3='KEN']")?.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true })
+    );
+  });
+  await page.click("#mapAskAssistant");
+  await page.waitForURL(/\/assistant\/\?lat=/);
+  await expectText(page, ".assistant-context", "Kenya");
 
   await browser.close();
   console.log("Functional tests passed");
