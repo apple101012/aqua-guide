@@ -140,7 +140,6 @@ function buildRegionPage(payload) {
   return `
     <div class="page-shell">
       ${renderRegionBreadcrumb(region)}
-      ${resolverCopy ? `<div class="resolver-banner">${escapeHtml(resolverCopy)}</div>` : ""}
       <section class="hero hero-region">
         <div class="hero-grid region-hero-grid">
           <div class="hero-copy">
@@ -148,7 +147,6 @@ function buildRegionPage(payload) {
             <h1>${escapeHtml(region.name)}</h1>
             <p>${escapeHtml(region.heroDescription)}</p>
             <div class="hero-copy-cluster">
-              ${renderStatusBadge(region)}
               <span class="meta-pill">${escapeHtml(region.utility)}</span>
               <span class="meta-pill">${escapeHtml(region.recordLabel)}</span>
             </div>
@@ -175,36 +173,33 @@ function buildRegionPage(payload) {
               <button id="saveRegionButton" class="secondary-button" type="button">${saved ? "Saved" : "Save place"}</button>
               <button id="copySummaryButton" class="ghost-button" type="button">Copy summary</button>
             </div>
+            <div class="hero-assistant-chips">
+              ${region.aiSuggestions
+                .slice(0, 3)
+                .map(
+                  (question) => `
+                    <a class="helper-chip" href="${buildAssistantHref(region, question)}">${escapeHtml(question)}</a>
+                  `
+                )
+                .join("")}
+            </div>
           </aside>
         </div>
       </section>
 
-      <section class="search-section search-section-inline">
-        <div class="search-stack">
-          <form id="regionSearchForm" class="search-bar">
-            <div class="search-icon">${iconSvg.search}</div>
-            <input id="regionSearchInput" type="text" placeholder="Search another city, country, or featured region" autocomplete="off" />
-            <button class="primary-button" type="submit">Open guidance</button>
-            <button id="useLocationButton" class="secondary-button" type="button">Use my location</button>
-          </form>
-          <div id="regionSearchSuggestions" class="search-suggestions" hidden></div>
-        </div>
-        <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      </section>
-
       ${renderHighlights(region)}
-      ${buildLiveContext(payload)}
       ${renderActions(region)}
       ${renderSources(region)}
-      <section class="assistant-inline">
+      <section class="assistant-inline assistant-inline-compact">
         <div class="section-head">
           <div>
-            <p class="section-label">Need help understanding this?</p>
+            <p class="section-label">Need a follow-up?</p>
             <h2>Open Aqua Assistant with this place already loaded</h2>
           </div>
         </div>
         <div class="helper-row">
           ${region.aiSuggestions
+            .slice(0, 4)
             .map(
               (question) => `
                 <a class="helper-chip" href="${buildAssistantHref(region, question)}">${escapeHtml(question)}</a>
@@ -212,6 +207,21 @@ function buildRegionPage(payload) {
             )
             .join("")}
         </div>
+      </section>
+      <section class="search-section search-section-inline search-section-footer">
+        <div class="section-head compact">
+          <div><h2>Search another place</h2></div>
+          <p class="section-meta">${escapeHtml(resolverCopy || "Global search still works if you need another city or country.")}</p>
+        </div>
+        <div class="search-stack">
+          <form id="regionSearchForm" class="search-bar">
+            <div class="search-icon">${iconSvg.search}</div>
+            <input id="regionSearchInput" type="text" placeholder="Search another city, country, or featured region" autocomplete="off" />
+            <button class="primary-button" type="submit">Open guidance</button>
+          </form>
+          <div id="regionSearchSuggestions" class="search-suggestions" hidden></div>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
       </section>
       ${renderModalShell()}
     </div>

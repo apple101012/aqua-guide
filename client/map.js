@@ -1,8 +1,8 @@
 import {
-  getCountryHotspots,
   getCountryWaterRecord,
   getCountryWaterRecordByNumericCode
 } from "../data/country-water-index.js";
+import { regions } from "../data/regions.js";
 import { attachPlaceSearch, buildRegionHrefFromCandidate } from "./place-search.js";
 import { resolveDynamicPayloadFromCoordinates, searchPlaceCandidates } from "./location-service.js";
 import { escapeHtml, getAssistantLanguage, renderShell, renderStatusBadge, setDocumentTitle, showToast } from "./common.js";
@@ -20,6 +20,19 @@ const riskBorderPalette = {
   safe: "#15803d",
   unavailable: "#94a3b8"
 };
+
+const featuredRegions = regions.slice(0, 4);
+const featuredCountryIso3Set = new Set(featuredRegions.map((region) => region.countryIso3));
+const featuredCountryMeta = new Map(
+  featuredRegions.map((region) => [
+    region.countryIso3,
+    {
+      regionId: region.id,
+      regionName: region.name,
+      quickSummary: region.quickSummary
+    }
+  ])
+);
 
 function buildGuidanceHref(record) {
   const url = new URL("../region/", window.location.href);
@@ -71,15 +84,20 @@ function getCountrySummary(record) {
 }
 
 function renderHotspotButton(record) {
+  const featuredMeta = featuredCountryMeta.get(record.iso3);
   return `
     <button class="hotspot-chip hotspot-chip-${record.status}" type="button" data-hotspot-iso3="${record.iso3}">
       <span>${escapeHtml(record.flag || "🌍")} ${escapeHtml(record.country)}</span>
-      <strong>${escapeHtml(record.riskLabel)}</strong>
+      <strong>${escapeHtml(featuredMeta?.regionName || record.country)}</strong>
     </button>
   `;
 }
 
 function renderCountryDrawer(record) {
+  const featuredMeta = featuredCountryMeta.get(record.iso3);
+  const guidanceHref = featuredMeta?.regionId
+    ? `../region/?id=${encodeURIComponent(featuredMeta.regionId)}`
+    : buildGuidanceHref(record);
   return `
     <div class="map-drawer-head">
       <div>
@@ -88,23 +106,16 @@ function renderCountryDrawer(record) {
       </div>
       ${renderStatusBadge(record)}
     </div>
-    <p class="map-drawer-copy">${escapeHtml(getCountrySummary(record))}</p>
+    <p class="map-drawer-copy">${escapeHtml(featuredMeta?.quickSummary || getCountrySummary(record))}</p>
     <div class="map-stat-grid">
       <div><span>Quality index</span><strong>${escapeHtml(record.qualityIndexLabel)}</strong></div>
       <div><span>Risk score</span><strong>${escapeHtml(record.riskLabel)}</strong></div>
       <div><span>Water access</span><strong>${escapeHtml(record.drinkingWaterDisplay || "N/A")}</strong></div>
       <div><span>Sanitation</span><strong>${escapeHtml(record.sanitationDisplay || "N/A")}</strong></div>
-      <div><span>Population</span><strong>${escapeHtml(record.populationDisplay || "N/A")}</strong></div>
-      <div><span>Region</span><strong>${escapeHtml(record.subregion || record.region || "Global")}</strong></div>
     </div>
     <div class="map-drawer-actions">
-      <a id="mapOpenGuidance" class="primary-button" href="${buildGuidanceHref(record)}">Open guidance</a>
+      <a id="mapOpenGuidance" class="primary-button" href="${guidanceHref}">${featuredMeta ? "Open flagship guidance" : "Open guidance"}</a>
       <a id="mapAskAssistant" class="secondary-button" href="${buildAssistantHref(record)}">Ask assistant</a>
-    </div>
-    <div class="map-drawer-search">
-      <button class="ghost-button" type="button" data-country-search="${escapeHtml(record.capital ? `${record.capital}, ${record.country}` : record.country)}">
-        Search ${escapeHtml(record.capital ? `${record.capital}, ${record.country}` : record.country)}
-      </button>
     </div>
   `;
 }
@@ -129,11 +140,10 @@ function renderPlaceDrawer(payload, candidate) {
     <div class="map-place-note">${escapeHtml(fallbackLabel)}</div>
     <div class="map-stat-grid">
       <div><span>Quality index</span><strong>${escapeHtml(`${region.qualityIndex}/100`)}</strong></div>
-      <div><span>Country</span><strong>${escapeHtml(region.country || "Unknown")}</strong></div>
       <div><span>Water access</span><strong>${escapeHtml(liveData?.drinkingWater?.display || "Unavailable")}</strong></div>
       <div><span>Sanitation</span><strong>${escapeHtml(liveData?.sanitation?.display || "Unavailable")}</strong></div>
       <div><span>Weather</span><strong>${escapeHtml(liveData?.weather ? `${liveData.weather.temperatureC}°C` : "Unavailable")}</strong></div>
-      <div><span>Conditions</span><strong>${escapeHtml(liveData?.weather?.label || "Unavailable")}</strong></div>
+      <div><span>Conditions</span><strong>${escapeHtml(liveData?.weather?.label || region.country || "Unavailable")}</strong></div>
     </div>
     <div class="map-drawer-actions">
       <a class="primary-button" href="${buildRegionHrefFromCandidate(candidate, "../")}">Open city guidance</a>
@@ -157,26 +167,27 @@ function renderPlaceDrawerPending(candidate) {
     <p class="map-drawer-copy">Dropping into this place now. Aqua Guide is pulling local weather and broader water-access indicators for the closest supported region.</p>
     <div class="map-stat-grid map-stat-grid-pending">
       <div><span>Quality index</span><strong>Loading...</strong></div>
-      <div><span>Country</span><strong>${escapeHtml(candidate.country || "Loading...")}</strong></div>
       <div><span>Water access</span><strong>Loading...</strong></div>
       <div><span>Sanitation</span><strong>Loading...</strong></div>
       <div><span>Weather</span><strong>Loading...</strong></div>
-      <div><span>Conditions</span><strong>Loading...</strong></div>
+      <div><span>Conditions</span><strong>${escapeHtml(candidate.country || "Loading...")}</strong></div>
     </div>
   `;
 }
 
 function buildMapLayout() {
-  const hotspots = getCountryHotspots(10);
+  const hotspots = featuredRegions
+    .map((region) => getCountryWaterRecord(region.countryIso3))
+    .filter(Boolean);
   return `
     <div class="page-shell">
       <section class="map-page">
         <div class="section-head">
           <div>
-            <p class="section-label">Global map</p>
-            <h1>Country water risk map</h1>
+            <p class="section-label">Global overview</p>
+            <h1>Flagship country map</h1>
           </div>
-          <p class="section-meta">Start broad with country pressure, then drill into a city or district without leaving the map unless you want the full guidance page.</p>
+          <p class="section-meta">Click a featured country or search any city.</p>
         </div>
         <div class="map-layout">
           <div class="map-panel">
@@ -205,8 +216,8 @@ function buildMapLayout() {
             <div class="hotspot-strip">
               <div class="section-head compact">
                 <div>
-                  <p class="section-label">High-pressure hotspots</p>
-                  <h2>Start with the places that need the fastest household guidance</h2>
+                  <p class="section-label">Flagship stories</p>
+                  <h2>The four countries to present</h2>
                 </div>
               </div>
               <div class="hotspot-row">${hotspots.map(renderHotspotButton).join("")}</div>
@@ -214,8 +225,8 @@ function buildMapLayout() {
           </div>
           <aside id="mapDrawer" class="map-drawer">
             <p class="eyebrow">How to use this map</p>
-            <h2>Select a country or search a city</h2>
-            <p>Click a country for national pressure data, or search a city to zoom in and use its local weather plus country-level access signals.</p>
+            <h2>Start with Bangladesh, Kenya, Mozambique, or Haiti</h2>
+            <p>The map is curated for the four presentation countries, but search can still jump to any city and pull local weather plus country-level access signals.</p>
           </aside>
         </div>
       </section>
@@ -225,11 +236,12 @@ function buildMapLayout() {
 
 function styleForRecord(record, isSelected = false) {
   const status = record?.status || "unavailable";
+  const isFeatured = Boolean(record?.iso3 && featuredCountryIso3Set.has(record.iso3));
   return {
-    color: isSelected ? "#fff7ed" : riskBorderPalette[status],
-    weight: isSelected ? 2.4 : 1,
-    fillColor: riskPalette[status],
-    fillOpacity: isSelected ? 0.9 : 0.72
+    color: isSelected ? "#fff7ed" : isFeatured ? riskBorderPalette[status] : "#cbd5e1",
+    weight: isSelected ? 2.2 : isFeatured ? 1 : 0.8,
+    fillColor: isFeatured ? riskPalette[status] : "#e5e7eb",
+    fillOpacity: isSelected ? 0.9 : isFeatured ? 0.74 : 0.38
   };
 }
 
@@ -248,8 +260,7 @@ async function init() {
   const loading = document.getElementById("mapLoading");
   const mapCanvasShell = document.getElementById("mapCanvasShell");
   const searchInput = document.getElementById("mapSearchInput");
-  const hotspotRecords = getCountryHotspots(10);
-  const selectedState = { iso3: hotspotRecords[0]?.iso3 || "", placeMarker: null };
+  const selectedState = { iso3: "", placeMarker: null };
 
   const map = L.map("worldMap", {
     attributionControl: false,
@@ -257,7 +268,7 @@ async function init() {
     scrollWheelZoom: true,
     dragging: true,
     tap: false,
-    minZoom: 1,
+    minZoom: 0,
     maxZoom: 8
   });
 
@@ -290,14 +301,6 @@ async function init() {
 
     setDrawerTheme(drawer, record.status);
     drawer.innerHTML = renderCountryDrawer(record);
-
-    document.querySelectorAll("[data-country-search]").forEach((button) => {
-      button.addEventListener("click", async () => {
-        const query = button.getAttribute("data-country-search") || record.country;
-        searchInput.value = query;
-        await handleSearchQuery(query);
-      });
-    });
 
     countryLayers.forEach((layer, layerIso3) => {
       layer.setStyle(styleForRecord(getCountryWaterRecord(layerIso3), layerIso3 === iso3));
@@ -360,6 +363,10 @@ async function init() {
   const worldFeatureCollection = window.topojson.feature(topology, topology.objects.countries);
 
   const geoLayer = L.geoJSON(worldFeatureCollection, {
+    filter(feature) {
+      const numericCode = String(feature?.id || "").padStart(3, "0");
+      return numericCode !== "010";
+    },
     style(feature) {
       const record = getCountryWaterRecordByNumericCode(String(feature?.id || "").padStart(3, "0"));
       return styleForRecord(record, record?.iso3 === selectedState.iso3);
@@ -418,6 +425,7 @@ async function init() {
   const bounds = geoLayer.getBounds();
   if (bounds.isValid()) {
     map.fitBounds(bounds, { padding: [16, 16] });
+    map.setMaxBounds(bounds.pad(0.15));
   }
 
   map.whenReady(() => {
@@ -439,9 +447,6 @@ async function init() {
     button.addEventListener("click", () => selectCountryByIso3(button.getAttribute("data-hotspot-iso3")));
   });
 
-  if (hotspotRecords[0]?.iso3) {
-    selectCountryByIso3(hotspotRecords[0].iso3, { skipFocus: true });
-  }
 }
 
 init().catch((error) => {

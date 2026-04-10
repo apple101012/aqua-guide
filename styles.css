@@ -44,6 +44,10 @@ html {
   scroll-behavior: smooth;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   font-family: "Segoe UI", Inter, Arial, sans-serif;
@@ -577,10 +581,14 @@ svg {
 }
 
 .toast {
-  min-height: 24px;
+  min-height: 0;
   margin-top: 10px;
   color: var(--teal);
   font-weight: 600;
+}
+
+.toast:empty {
+  display: none;
 }
 
 .search-suggestions {
@@ -588,7 +596,7 @@ svg {
   top: calc(100% + 10px);
   left: 0;
   right: 0;
-  z-index: 18;
+  z-index: 1200;
   display: grid;
   gap: 8px;
   padding: 10px;
@@ -597,6 +605,10 @@ svg {
   border-radius: 20px;
   box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(14px);
+}
+
+.map-search-suggestions {
+  z-index: 1500;
 }
 
 .search-suggestion,
@@ -705,6 +717,9 @@ svg {
   position: relative;
   overflow: hidden;
   padding-top: 28px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .region-card-band {
@@ -741,8 +756,12 @@ svg {
   margin-top: 18px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
+}
+
+.region-card-actions .primary-button {
+  width: 100%;
 }
 
 .region-card-advisory {
@@ -1024,6 +1043,11 @@ svg {
   margin-top: 8px;
 }
 
+.region-grid-section .section-meta,
+.search-section .section-meta {
+  max-width: 360px;
+}
+
 .resources-hero-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, 360px);
@@ -1085,6 +1109,21 @@ svg {
 
 .resource-section.is-active {
   opacity: 1;
+}
+
+.hero-assistant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.assistant-inline-compact {
+  margin-top: 24px;
+}
+
+.search-section-footer {
+  margin-top: 28px;
 }
 
 .empty-state p,
@@ -1288,7 +1327,7 @@ svg {
 
 .map-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) 360px;
+  grid-template-columns: minmax(0, 1.45fr) 320px;
   gap: 22px;
 }
 
@@ -1310,6 +1349,7 @@ svg {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  font-size: 0.8rem;
 }
 
 .map-legend span {
@@ -1330,25 +1370,11 @@ svg {
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: 1px solid var(--gray-200);
-  background:
-    radial-gradient(circle at top left, rgba(96, 165, 250, 0.24), transparent 32%),
-    linear-gradient(180deg, #dff6ff, #eef8ff 35%, #f8fbff);
-}
-
-.map-canvas-shell.is-loading::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.34) 50%, rgba(255, 255, 255, 0) 100%);
-  transform: translateX(-100%);
-  animation: mapShimmer 1.8s linear infinite;
-  pointer-events: none;
-  z-index: 1;
+  background: linear-gradient(180deg, #f8fbff, #f1f7fb);
 }
 
 .world-map {
-  height: 620px;
+  height: 520px;
 }
 
 .world-map .leaflet-container {
@@ -1400,19 +1426,19 @@ svg {
 }
 
 .hotspot-chip-advisory {
-  border-left: 3px solid var(--red);
+  border-left: 2px solid rgba(239, 68, 68, 0.78);
 }
 
 .hotspot-chip-caution {
-  border-left: 3px solid var(--amber);
+  border-left: 2px solid rgba(245, 158, 11, 0.82);
 }
 
 .hotspot-chip-safe {
-  border-left: 3px solid var(--green-safe);
+  border-left: 2px solid rgba(34, 197, 94, 0.78);
 }
 
 .hotspot-chip-unavailable {
-  border-left: 3px solid var(--gray-400);
+  border-left: 2px solid rgba(148, 163, 184, 0.78);
 }
 
 .map-drawer {
@@ -1420,6 +1446,8 @@ svg {
   top: 98px;
   align-self: start;
   min-height: 420px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 .map-drawer-unavailable {
@@ -1505,15 +1533,6 @@ svg {
   50% {
     opacity: 0.65;
     transform: scale(0.85);
-  }
-}
-
-@keyframes mapShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
   }
 }
 

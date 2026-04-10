@@ -30,7 +30,7 @@ function waitForServer(url, timeoutMs = 20000) {
 async function waitForNonLoadingMetric(page) {
   await page.waitForFunction(
     () => {
-      const cards = Array.from(document.querySelectorAll(".live-metric-card strong"));
+      const cards = Array.from(document.querySelectorAll("#heroMetricGrid strong"));
       return cards.length >= 3;
     },
     { timeout: 20000 }

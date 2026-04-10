@@ -364,10 +364,9 @@ export function setDocumentTitle(label) {
 function renderNavLinks(basePath, active) {
   const navLinks = [
     { id: "home", href: `${basePath}`, label: "Home" },
-    { id: "regions", href: `${basePath}region/`, label: "Regions" },
+    { id: "regions", href: `${basePath}region/`, label: "Countries" },
     { id: "map", href: `${basePath}map/`, label: "Map" },
-    { id: "assistant", href: `${basePath}assistant/`, label: "Assistant" },
-    { id: "resources", href: `${basePath}resources/`, label: "Resources" }
+    { id: "assistant", href: `${basePath}assistant/`, label: "Assistant" }
   ];
 
   return navLinks
@@ -398,8 +397,9 @@ export function renderShell({ basePath = "./", activeNav = "home" }) {
     <div class="footer-inner">
       <p>Aqua Guide provides plain-language water guidance using public global data and should be used alongside official local advisories.</p>
       <div class="footer-links">
+        <a href="${basePath}region/">Countries</a>
+        <a href="${basePath}map/">Map</a>
         <a href="${basePath}assistant/">Assistant</a>
-        <a href="${basePath}resources/">Resources</a>
       </div>
     </div>
   `;
@@ -437,12 +437,11 @@ export function renderRegionCard(region, basePath = "./") {
       <p class="region-card-meta">${escapeHtml(region.utility)}</p>
       <div class="region-card-metric">
         <span>Quality index</span>
-        <strong>${escapeHtml(region.qualityIndex)}</strong>
+        <strong>${escapeHtml(region.qualityIndex)}/100</strong>
       </div>
       <p class="region-card-copy">${escapeHtml(region.oneLiner)}</p>
       <div class="region-card-actions">
-        <a class="inline-link" href="${basePath}region/?id=${encodeURIComponent(region.id)}">View guidance</a>
-        <button class="chip-button" type="button" data-favorite-toggle="${escapeAttribute(region.id)}">${isFavorite(region.id) ? "Saved" : "Save"}</button>
+        <a class="primary-button" href="${basePath}region/?id=${encodeURIComponent(region.id)}">Open guidance</a>
       </div>
     </article>
   `;
@@ -610,14 +609,14 @@ export function renderHomeHero(region, basePath = "./") {
         <div class="hero-copy">
           <p class="hero-kicker">Water guidance for households and responders</p>
           <h1>Know your water.<br /><span>Protect your home.</span></h1>
-          <p>Aqua Guide turns scattered water signals into household-ready guidance for regions facing scarcity, storm damage, and fragile infrastructure.</p>
+          <p>Aqua Guide turns complex water conditions into one clear household plan. The demo focuses on Bangladesh, Kenya, Mozambique, and Haiti while still supporting global search.</p>
           <div class="hero-actions">
-            <a class="primary-button" href="${basePath}region/?id=${encodeURIComponent(region.id)}">Explore regions</a>
+            <a class="primary-button" href="${basePath}region/?id=${encodeURIComponent(region.id)}">Start with ${escapeHtml(region.country)}</a>
             <a class="secondary-button" href="${basePath}assistant/">Open assistant</a>
           </div>
         </div>
         <aside class="hero-status-card">
-          <div class="hero-status-top"><p class="eyebrow">Highest priority region</p>${renderStatusBadge(region)}</div>
+          <div class="hero-status-top"><p class="eyebrow">Featured today</p>${renderStatusBadge(region)}</div>
           <h2>${escapeHtml(region.flag)} ${escapeHtml(region.name)}</h2>
           <p>${escapeHtml(region.oneLiner)}</p>
           <div class="hero-metric-grid">
@@ -632,9 +631,10 @@ export function renderHomeHero(region, basePath = "./") {
 }
 
 export function renderHomeSearch(basePath = "./") {
+  const exampleChips = featuredSearches.slice(0, 4);
   return `
     <section class="search-section">
-      <div class="section-head compact"><div><p class="section-label">Find guidance</p><h2>Search any city, district, or community</h2></div></div>
+      <div class="section-head compact"><div><h2>Search any city, district, or community</h2></div><p class="section-meta">Start with a flagship country or jump straight to your own place.</p></div>
       <div class="search-stack">
         <form id="regionSearchForm" class="search-bar">
           <div class="search-icon">${iconSvg.search}</div>
@@ -644,7 +644,7 @@ export function renderHomeSearch(basePath = "./") {
         <div id="regionSearchSuggestions" class="search-suggestions" hidden></div>
       </div>
       <div class="search-helpers">
-        ${featuredSearches
+        ${exampleChips
           .map((place) => `<a class="helper-chip" href="${basePath}region/?q=${encodeURIComponent(place.query)}">${escapeHtml(place.label)}</a>`)
           .join("")}
       </div>

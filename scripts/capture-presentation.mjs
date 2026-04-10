@@ -192,8 +192,7 @@ try {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await page.screenshot({ path: path.join(outputDir, "01-home-overview.png"), fullPage: false });
 
-  await page.fill("#regionSearchInput", "Turkana County, Kenya");
-  await page.click("#regionSearchForm .primary-button");
+  await page.goto(`${baseUrl}/region/?id=turkana-kenya`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => document.querySelector("h1")?.textContent?.includes("Turkana County, Kenya"));
   await page.screenshot({ path: path.join(outputDir, "02-region-turkana.png"), fullPage: false });
 
@@ -203,7 +202,7 @@ try {
   await page.click("#closeModalButton");
 
   await page.goto(`${baseUrl}/assistant/?region=turkana-kenya`, { waitUntil: "networkidle" });
-  await page.click("[data-language='fr']");
+  await page.click("[data-language='es']");
   await page.fill("#assistantInput", "What is the first step in an advisory?");
   await page.click("#assistantSendButton");
   await page.waitForFunction(() => {
@@ -211,27 +210,19 @@ try {
     const text = messages.at(-1)?.textContent ?? "";
     return messages.length >= 2 && !text.includes("Working through the safest possible answer for this location...");
   });
-  await page.screenshot({ path: path.join(outputDir, "04-assistant-french.png"), fullPage: false });
-
-  await page.goto(`${baseUrl}/resources/`, { waitUntil: "networkidle" });
-  await page.click("[data-group='field']");
-  await page.screenshot({ path: path.join(outputDir, "05-resources-field.png"), fullPage: false });
-
-  await page.goto(`${baseUrl}/region/?id=turkana-kenya`, { waitUntil: "networkidle" });
-  await page.click("#useLocationButton");
-  await page.waitForFunction(() => document.querySelector("h1")?.textContent?.includes("Nairobi"));
-  await page.screenshot({ path: path.join(outputDir, "06-region-geolocation.png"), fullPage: false });
+  await page.screenshot({ path: path.join(outputDir, "04-assistant-spanish.png"), fullPage: false });
 
   await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => document.getElementById("mapLoading")?.hidden === true);
   await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
-  await page.screenshot({ path: path.join(outputDir, "07-map-overview.png"), fullPage: false });
+  await page.screenshot({ path: path.join(outputDir, "05-map-overview.png"), fullPage: false });
   await page.evaluate(() => {
     document.querySelector(".leaflet-interactive[data-iso3='KEN']")?.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true })
     );
   });
   await page.waitForFunction(() => document.querySelector("#mapDrawer")?.textContent?.includes("Kenya"));
-  await page.screenshot({ path: path.join(outputDir, "08-map-kenya-drawer.png"), fullPage: false });
+  await page.screenshot({ path: path.join(outputDir, "06-map-kenya-drawer.png"), fullPage: false });
 
   await browser.close();
 } finally {

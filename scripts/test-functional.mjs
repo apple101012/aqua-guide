@@ -240,7 +240,7 @@ try {
   await page.waitForURL(/\/region\/\?(q=|lat=)/);
   await expectText(page, "h1", "Nairobi, Nairobi County, Kenya");
   await expectText(page, ".hero-status-card h2", "Quality index");
-  await expectText(page, "#liveContextMount", "67%");
+  await expectText(page, "#heroMetricGrid", "67%");
 
   await page.click("#saveRegionButton");
   await expectText(page, "#saveRegionButton", "Saved");
@@ -314,27 +314,27 @@ try {
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await page.fill("#regionSearchInput", "Lusaka, Zambia");
-  await page.click("#regionSearchForm .primary-button");
-  await page.waitForURL(/\/region\/\?q=/);
+  await expectText(page, "#regionSearchSuggestions", "Lusaka, Lusaka Province, Zambia");
+  await page.click("#regionSearchSuggestions .search-suggestion");
+  await page.waitForURL(/\/region\/\?(q=|lat=)/);
   await expectText(page, "h1", "Lusaka, Lusaka Province, Zambia");
-  await expectText(page, "#liveContextMount", "67%");
+  await expectText(page, "#heroMetricGrid", "67%");
 
   await page.goto(`${baseUrl}/region/?id=turkana-kenya`, { waitUntil: "networkidle" });
   await expectText(page, "h1", "Turkana County, Kenya");
-  await expectText(page, "#liveContextMount", "67%");
-  await page.click("#useLocationButton");
-  await page.waitForURL(/\/region\/\?lat=/);
+  await expectText(page, "#heroMetricGrid", "67%");
+  await page.fill("#regionSearchInput", "Nairobi, Kenya");
+  await expectText(page, "#regionSearchSuggestions", "Nairobi, Nairobi County, Kenya");
+  await page.click("#regionSearchSuggestions .search-suggestion");
+  await page.waitForURL(/\/region\/\?(q=|lat=)/);
   await expectText(page, "h1", "Nairobi, Nairobi County, Kenya");
 
   await page.goto(`${baseUrl}/resources/`, { waitUntil: "networkidle" });
   await page.click("[data-group='field']");
   await expectText(page, "#resource-group-field", "Use one household-ready summary");
 
-  await page.goto(baseUrl, { waitUntil: "networkidle" });
-  await expectText(page, ".saved-chip", "Nairobi, Nairobi County, Kenya");
-
   await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
-  await expectText(page, "h1", "Country water risk map");
+  await expectText(page, "h1", "Flagship country map");
   await page.waitForFunction(() => document.getElementById("mapLoading")?.hidden === true);
   await page.fill("#mapSearchInput", "Nairobi, Kenya");
   await expectText(page, "#mapSearchSuggestions", "Nairobi, Nairobi County, Kenya");
@@ -346,8 +346,8 @@ try {
   });
   await expectText(page, "#mapDrawer", "Kenya");
   await page.click("#mapOpenGuidance");
-  await page.waitForURL(/\/region\/\?lat=/);
-  await expectText(page, "h1", "Kenya");
+  await page.waitForURL(/\/region\/\?id=turkana-kenya/);
+  await expectText(page, "h1", "Turkana County, Kenya");
 
   await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
   await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
