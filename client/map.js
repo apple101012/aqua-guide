@@ -8,17 +8,17 @@ import { resolveDynamicPayloadFromCoordinates, searchPlaceCandidates } from "./l
 import { escapeHtml, getAssistantLanguage, renderShell, renderStatusBadge, setDocumentTitle, showToast } from "./common.js";
 
 const riskPalette = {
-  advisory: "#ef4444",
-  caution: "#f59e0b",
-  safe: "#22c55e",
-  unavailable: "#cbd5e1"
+  advisory: "#ff5a5f",
+  caution: "#f5a524",
+  safe: "#38d27a",
+  unavailable: "#1a2b3b"
 };
 
 const riskBorderPalette = {
-  advisory: "#b91c1c",
-  caution: "#b45309",
-  safe: "#15803d",
-  unavailable: "#94a3b8"
+  advisory: "#ffd9d8",
+  caution: "#ffe1a8",
+  safe: "#c8ffe0",
+  unavailable: "#31485c"
 };
 
 const featuredRegions = regions.slice(0, 4);
@@ -238,10 +238,10 @@ function styleForRecord(record, isSelected = false) {
   const status = record?.status || "unavailable";
   const isFeatured = Boolean(record?.iso3 && featuredCountryIso3Set.has(record.iso3));
   return {
-    color: isSelected ? "#fff7ed" : isFeatured ? riskBorderPalette[status] : "#cbd5e1",
-    weight: isSelected ? 2.2 : isFeatured ? 1 : 0.8,
-    fillColor: isFeatured ? riskPalette[status] : "#e5e7eb",
-    fillOpacity: isSelected ? 0.9 : isFeatured ? 0.74 : 0.38
+    color: isSelected ? "#f8fafc" : isFeatured ? riskBorderPalette[status] : "#31485c",
+    weight: isSelected ? 2.5 : isFeatured ? 1.1 : 0.8,
+    fillColor: isFeatured ? riskPalette[status] : "#1a2b3b",
+    fillOpacity: isSelected ? 0.94 : isFeatured ? 0.86 : 0.95
   };
 }
 
@@ -319,9 +319,9 @@ async function init() {
     clearPlaceMarker();
     selectedState.placeMarker = L.circleMarker([candidate.lat, candidate.lng], {
       radius: 8,
-      color: "#0f172a",
+      color: "#f8fafc",
       weight: 2,
-      fillColor: "#ffffff",
+      fillColor: "#6b9e8a",
       fillOpacity: 0.92
     })
       .addTo(map)
@@ -394,7 +394,7 @@ async function init() {
       });
       layer.on("mouseover", () => {
         if (record.iso3 && record.iso3 !== selectedState.iso3) {
-          layer.setStyle({ weight: 1.8, fillOpacity: 0.84 });
+          layer.setStyle({ weight: 1.9, fillOpacity: 0.96 });
         }
       });
       layer.on("mouseout", () => {
