@@ -118,6 +118,76 @@ function styleForRecord(record, isSelected = false) {
   };
 }
 
+function normalizeRingAntimeridian(ring) {
+  if (!Array.isArray(ring) || ring.length < 2) return ring;
+
+  const normalized = [Array.isArray(ring[0]) ? [...ring[0]] : ring[0]];
+
+  for (let i = 1; i < ring.length; i += 1) {
+    const point = Array.isArray(ring[i]) ? [...ring[i]] : ring[i];
+    const prev = normalized[i - 1];
+    if (!Array.isArray(point) || !Array.isArray(prev)) {
+      normalized.push(point);
+      continue;
+    }
+
+    while (point[0] - prev[0] > 180) point[0] -= 360;
+    while (point[0] - prev[0] < -180) point[0] += 360;
+    normalized.push(point);
+  }
+
+  const lngValues = normalized
+    .map((point) => (Array.isArray(point) ? point[0] : null))
+    .filter((value) => Number.isFinite(value));
+
+  if (!lngValues.length) return normalized;
+
+  const minLng = Math.min(...lngValues);
+  const maxLng = Math.max(...lngValues);
+
+  if (maxLng > 180 && minLng >= 0) {
+    return normalized.map((point) => (Array.isArray(point) ? [point[0] - 360, point[1]] : point));
+  }
+
+  if (minLng < -180 && maxLng <= 0) {
+    return normalized.map((point) => (Array.isArray(point) ? [point[0] + 360, point[1]] : point));
+  }
+
+  return normalized;
+}
+
+function normalizeGeometryAntimeridian(geometry) {
+  if (!geometry?.type || !Array.isArray(geometry.coordinates)) return geometry;
+
+  if (geometry.type === "Polygon") {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map(normalizeRingAntimeridian),
+    };
+  }
+
+  if (geometry.type === "MultiPolygon") {
+    return {
+      ...geometry,
+      coordinates: geometry.coordinates.map((polygon) => polygon.map(normalizeRingAntimeridian)),
+    };
+  }
+
+  return geometry;
+}
+
+function normalizeFeatureCollectionAntimeridian(featureCollection) {
+  if (!featureCollection?.features) return featureCollection;
+
+  return {
+    ...featureCollection,
+    features: featureCollection.features.map((feature) => ({
+      ...feature,
+      geometry: normalizeGeometryAntimeridian(feature.geometry),
+    })),
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /*  Drawer content components                                          */
 /* ------------------------------------------------------------------ */
@@ -378,7 +448,9 @@ export default function MapPage() {
         const topology = await response.json();
         if (cancelled) return;
 
-        const worldFeatureCollection = topojson.feature(topology, topology.objects.countries);
+        const worldFeatureCollection = normalizeFeatureCollectionAntimeridian(
+          topojson.feature(topology, topology.objects.countries)
+        );
 
         const geoLayer = L.geoJSON(worldFeatureCollection, {
           filter(feature) {
