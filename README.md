@@ -1,112 +1,91 @@
 # Aqua Guide
 
-Aqua Guide is a multi-page web application for water guidance in places facing scarcity, flooding, service interruption, and fragile infrastructure. It combines featured launch profiles with live public data for searched locations, then turns that into plain-language actions that families, volunteers, and field teams can actually use.
+**Aqua Guide** is a web platform that turns confusing water-risk information into clear, local action plans for households, travelers, and community responders.
 
-## Product snapshot
+## Elevator Pitch
 
-- Four featured launch profiles:
-  - `Cox's Bazar, Bangladesh`
-  - `Turkana County, Kenya`
-  - `Beira, Mozambique`
-  - `Port-au-Prince, Haiti`
-- Global place search for cities, districts, and communities through public APIs
-- Separate product pages for:
-  - home
-  - region guidance
-  - global map
-  - multilingual AI assistant
-  - resources
-- Interactive country map with a generated country-risk dataset and clickable guidance handoff
-- Live country indicators from the World Bank
-- Live weather and place search from Open-Meteo
-- Reverse geocoding via BigDataCloud
-- Country metadata via REST Countries
-- Multilingual AI chat through a server-side OpenAI route with a safe fallback when no key is configured
-- Local persistence for saved places and last-viewed location
+Water guidance is often scattered, technical, and hard to act on. Aqua Guide makes it simple: search a place, understand the risk, and get practical next steps in plain language.
 
-## Why this product works
+## Live Project
 
-- The problem is globally legible in seconds.
-- The UI stays calm and premium even when the subject matter is serious.
-- The assistant and shareable summary make the app feel operational rather than purely informational.
-- The architecture is lightweight enough for a hackathon build, but structured like a real web product.
+- Live app: `https://aqua-guide.onrender.com`
+- Video demo: `https://youtu.be/xn_tyY7c1CE`
+- GitHub: `https://github.com/apple101012/aqua-guide`
 
-## Local development
+## What It Does
+
+- Turns place-based water context into one clear guidance page
+- Highlights four flagship country stories:
+  - Bangladesh
+  - Kenya
+  - Mozambique
+  - Haiti
+- Supports broader place search for cities and countries
+- Includes a multilingual assistant for follow-up questions
+- Provides a focused featured-country map for fast presentation and navigation
+
+## Why It Matters
+
+People dealing with uncertain water conditions do not just need data. They need a clear answer to: **what should I do next?**
+
+Aqua Guide is designed to reduce confusion, improve communication, and help people move from scattered information to action.
+
+## Built With
+
+- React
+- Vite
+- React Router
+- Node.js
+- OpenAI API
+- Open-Meteo
+- World Bank indicators
+- REST Countries
+- BigDataCloud
+- Render
+
+## Local Development
 
 ```bash
 npm install
+npm run dev
+```
+
+For the assistant backend route:
+
+```bash
 npm start
 ```
 
-Then open `http://127.0.0.1:4173`.
-
-To enable live OpenAI responses, copy `.env.example` to `.env` and set:
+If you want live assistant responses locally, create a `.env` file from `.env.example` and set:
 
 ```bash
 OPENAI_API_KEY=your_key_here
 OPENAI_MODEL=gpt-4.1
 ```
 
-`.env` is ignored by git.
-
 ## Validation
 
-Run the automated browser flow:
-
 ```bash
+npm run build
 npm run test:functional
+npm run test:live-smoke
 ```
 
-Refresh the generated country map dataset:
+## Repo Structure
 
-```bash
-npm run build:map-data
-```
+- `src/` - React pages, components, and services
+- `data/` - featured region data and generated country dataset
+- `public/data/` - topology data used by the map
+- `scripts/` - build and validation scripts
+- `server.mjs` - lightweight backend for assistant routing and local serving
+- `render.yaml` - deployment config
 
-Generate the current presentation screenshots:
+## Hackathon Focus
 
-```bash
-npm run screenshots:presentation
-```
+This project is optimized for a short presentation:
 
-If your Obsidian vault is not under `~/Documents/Github/my-notes`, set `OBSIDIAN_VAULT` before running the screenshot command.
-
-## Stack
-
-- Static HTML, CSS, and browser JavaScript for the frontend
-- Client-side public API calls for place search, live context, and country metadata
-- A lightweight Node server for the OpenAI-backed assistant route, CORS allowlisting, security headers, and health checks
-- Playwright for functional validation and screenshot capture
-
-## Project structure
-
-- `index.html`: homepage shell
-- `region/index.html`: region detail page
-- `map/index.html`: interactive world risk map
-- `assistant/index.html`: assistant page
-- `resources/index.html`: resource page
-- `client/`: page controllers and shared browser utilities
-- `data/regions.js`: featured launch profiles and search helpers
-- `data/country-water-index.js`: generated country-level water risk dataset
-- `data/world-countries.topo.json`: compact world topology for the map
-- `client/location-service.js`: public API orchestration for place search and live context
-- `client/map.js`: map page controller
-- `server.mjs`: assistant backend and local server entrypoint
-- `scripts/build-country-water-index.mjs`: dataset generation for the map
-- `scripts/test-functional.mjs`: end-to-end validation
-- `scripts/test-live-smoke.mjs`: live upstream smoke check
-- `scripts/capture-presentation.mjs`: screenshot capture
-- `.env.example`: local environment template
-- `render.yaml`: Render deployment config
-
-## External data
-
-- World Bank indicators:
-  - basic drinking water access
-  - basic sanitation access
-  - population
-- Open-Meteo geocoding and current conditions
-- BigDataCloud reverse geocoding
-- REST Countries metadata
-
-The featured launch profiles still use curated household guidance copy on top of those public signals, because a practical water-guidance product needs both live context and human-readable operational advice.
+- strong visual clarity
+- one easy-to-understand problem
+- practical action steps
+- multilingual assistant support
+- broad global relevance
