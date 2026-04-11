@@ -37,11 +37,11 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero hero-home">
         <div className="hero-grid">
           <div className="hero-copy">
             <p className="hero-kicker">Water safety guidance for everyone</p>
-            <h1>Know your water. Stay safe anywhere.</h1>
+            <h1>Know your water.<br /><span>Stay safe anywhere.</span></h1>
             <p>
               Aqua Guide turns complex water conditions into one clear safety
               plan -- whether you live in a water-stressed region or you're
@@ -56,25 +56,25 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <aside className={`hero-status-card solid hero-status-card-${critical.status}`}>
+          <aside className="hero-status-card">
             <div className="hero-status-top">
               <p className="eyebrow">Most critical region</p>
               <StatusBadge status={critical.status} statusLabel={critical.statusLabel} />
             </div>
             <h2>{critical.flag} {critical.name}</h2>
             <p>{critical.oneLiner}</p>
-            <div className="hero-detail-grid">
+            <div className="hero-metric-grid">
               <div>
                 <span>Quality index</span>
-                <strong>{critical.qualityIndex}/100</strong>
+                <strong>{critical.qualityIndex}</strong>
               </div>
               <div>
-                <span>Status</span>
-                <strong>{critical.statusLabel}</strong>
+                <span>Updated</span>
+                <strong>{critical.metrics.updated}</strong>
               </div>
             </div>
-            <Link className="primary-button" to={`/countries?id=${critical.id}`}>
-              Open guidance
+            <Link className="inline-link light" to={`/countries?id=${critical.id}`}>
+              View details
             </Link>
           </aside>
         </div>
