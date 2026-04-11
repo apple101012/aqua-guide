@@ -609,7 +609,7 @@ export function renderHomeHero(region, basePath = "./") {
         <div class="hero-copy">
           <p class="hero-kicker">Water guidance for households and responders</p>
           <h1>Know your water.<br /><span>Protect your home.</span></h1>
-          <p>Aqua Guide turns complex water conditions into one clear household plan. The demo focuses on Bangladesh, Kenya, Mozambique, and Haiti while still supporting global search.</p>
+          <p>Aqua Guide turns complex water conditions into one clear household plan, centered on Bangladesh, Kenya, Mozambique, and Haiti while still supporting global search.</p>
           <div class="hero-actions">
             <a class="primary-button" href="${basePath}region/?id=${encodeURIComponent(region.id)}">Start with ${escapeHtml(region.country)}</a>
             <a class="secondary-button" href="${basePath}assistant/">Open assistant</a>
