@@ -110,9 +110,11 @@ function getCountrySummary(record) {
 function styleForRecord(record, isSelected = false) {
   const status = record?.status || "unavailable";
   const isFeatured = Boolean(record?.iso3 && featuredCountryIso3Set.has(record.iso3));
+  const showStroke = isSelected || isFeatured;
   return {
-    color: isSelected ? "#f8fafc" : isFeatured ? riskBorderPalette[status] : "#31485c",
-    weight: isSelected ? 2.5 : isFeatured ? 1.1 : 0.8,
+    stroke: showStroke,
+    color: isSelected ? "#f8fafc" : isFeatured ? riskBorderPalette[status] : "#1a2b3b",
+    weight: isSelected ? 2.5 : isFeatured ? 1.1 : 0,
     fillColor: isFeatured ? riskPalette[status] : "#1a2b3b",
     fillOpacity: isSelected ? 0.94 : isFeatured ? 0.86 : 0.95,
   };
