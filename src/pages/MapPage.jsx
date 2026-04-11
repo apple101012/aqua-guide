@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import L from "leaflet";
+import { geoMercator, geoPath } from "d3-geo";
 import * as topojson from "topojson-client";
 import {
   getCountryWaterRecord,
@@ -13,36 +13,37 @@ import PlaceSearch from "../components/PlaceSearch";
 import StatusBadge from "../components/StatusBadge";
 import { useToast } from "../components/Toast";
 
-/* ------------------------------------------------------------------ */
-/*  Constants                                                          */
-/* ------------------------------------------------------------------ */
+const CARD_WIDTH = 360;
+const CARD_HEIGHT = 220;
+const CARD_PADDING = 20;
 
 const riskPalette = {
-  advisory: "#c44d4d",
-  caution: "#c8912e",
-  safe: "#3a9a6a",
-  unavailable: "#1a2b3b",
+  advisory: "#bf5252",
+  caution: "#cb9836",
+  safe: "#3ea978",
+  unavailable: "#5d7387",
 };
 
 const riskBorderPalette = {
-  advisory: "#ffd9d8",
-  caution: "#ffe1a8",
-  safe: "#c8ffe0",
-  unavailable: "#31485c",
+  advisory: "#ffd6d5",
+  caution: "#ffe2ad",
+  safe: "#d5ffea",
+  unavailable: "#89a1b4",
 };
 
 const featuredRegions = regions.slice(0, 4);
-const featuredCountryIso3Set = new Set(featuredRegions.map((r) => r.countryIso3));
+const featuredCountryIso3Set = new Set(featuredRegions.map((region) => region.countryIso3));
 const featuredCountryMeta = new Map(
-  featuredRegions.map((r) => [
-    r.countryIso3,
-    { regionId: r.id, regionName: r.name, quickSummary: r.quickSummary },
+  featuredRegions.map((region) => [
+    region.countryIso3,
+    {
+      regionId: region.id,
+      regionName: region.name,
+      quickSummary: region.quickSummary,
+      utility: region.utility,
+    },
   ])
 );
-
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
 
 function buildGuidanceHref(record) {
   const params = new URLSearchParams();
@@ -107,93 +108,6 @@ function getCountrySummary(record) {
   return `${record.country} reports ${record.drinkingWaterDisplay || "N/A"} basic drinking water access and ${record.sanitationDisplay || "N/A"} basic sanitation access.`;
 }
 
-function styleForRecord(record, isSelected = false) {
-  const status = record?.status || "unavailable";
-  const isFeatured = Boolean(record?.iso3 && featuredCountryIso3Set.has(record.iso3));
-  const showStroke = isSelected || isFeatured;
-  return {
-    stroke: showStroke,
-    color: isSelected ? "#f8fafc" : isFeatured ? riskBorderPalette[status] : "#1a2b3b",
-    weight: isSelected ? 2.5 : isFeatured ? 1.1 : 0,
-    fillColor: isFeatured ? riskPalette[status] : "#1a2b3b",
-    fillOpacity: isSelected ? 0.94 : isFeatured ? 0.86 : 0.95,
-  };
-}
-
-function normalizeRingAntimeridian(ring) {
-  if (!Array.isArray(ring) || ring.length < 2) return ring;
-
-  const normalized = [Array.isArray(ring[0]) ? [...ring[0]] : ring[0]];
-
-  for (let i = 1; i < ring.length; i += 1) {
-    const point = Array.isArray(ring[i]) ? [...ring[i]] : ring[i];
-    const prev = normalized[i - 1];
-    if (!Array.isArray(point) || !Array.isArray(prev)) {
-      normalized.push(point);
-      continue;
-    }
-
-    while (point[0] - prev[0] > 180) point[0] -= 360;
-    while (point[0] - prev[0] < -180) point[0] += 360;
-    normalized.push(point);
-  }
-
-  const lngValues = normalized
-    .map((point) => (Array.isArray(point) ? point[0] : null))
-    .filter((value) => Number.isFinite(value));
-
-  if (!lngValues.length) return normalized;
-
-  const minLng = Math.min(...lngValues);
-  const maxLng = Math.max(...lngValues);
-
-  if (maxLng > 180 && minLng >= 0) {
-    return normalized.map((point) => (Array.isArray(point) ? [point[0] - 360, point[1]] : point));
-  }
-
-  if (minLng < -180 && maxLng <= 0) {
-    return normalized.map((point) => (Array.isArray(point) ? [point[0] + 360, point[1]] : point));
-  }
-
-  return normalized;
-}
-
-function normalizeGeometryAntimeridian(geometry) {
-  if (!geometry?.type || !Array.isArray(geometry.coordinates)) return geometry;
-
-  if (geometry.type === "Polygon") {
-    return {
-      ...geometry,
-      coordinates: geometry.coordinates.map(normalizeRingAntimeridian),
-    };
-  }
-
-  if (geometry.type === "MultiPolygon") {
-    return {
-      ...geometry,
-      coordinates: geometry.coordinates.map((polygon) => polygon.map(normalizeRingAntimeridian)),
-    };
-  }
-
-  return geometry;
-}
-
-function normalizeFeatureCollectionAntimeridian(featureCollection) {
-  if (!featureCollection?.features) return featureCollection;
-
-  return {
-    ...featureCollection,
-    features: featureCollection.features.map((feature) => ({
-      ...feature,
-      geometry: normalizeGeometryAntimeridian(feature.geometry),
-    })),
-  };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Drawer content components                                          */
-/* ------------------------------------------------------------------ */
-
 function CountryDrawer({ record }) {
   const meta = featuredCountryMeta.get(record.iso3);
   const guidanceHref = meta?.regionId
@@ -205,24 +119,36 @@ function CountryDrawer({ record }) {
       <div className="map-drawer-head">
         <div>
           <p className="eyebrow">Selected country</p>
-          <h2>{record.flag || "\u{1F30D}"} {record.country}</h2>
+          <h2>
+            {record.flag || "\u{1F30D}"} {record.country}
+          </h2>
         </div>
         <StatusBadge status={record.status} statusLabel={record.statusLabel} />
       </div>
-      <p className="map-drawer-copy">
-        {meta?.quickSummary || getCountrySummary(record)}
-      </p>
+      <p className="map-drawer-copy">{meta?.quickSummary || getCountrySummary(record)}</p>
       <div className="map-stat-grid">
-        <div><span>Quality index</span><strong>{record.qualityIndexLabel}</strong></div>
-        <div><span>Risk score</span><strong>{record.riskLabel}</strong></div>
-        <div><span>Water access</span><strong>{record.drinkingWaterDisplay || "N/A"}</strong></div>
-        <div><span>Sanitation</span><strong>{record.sanitationDisplay || "N/A"}</strong></div>
+        <div>
+          <span>Quality index</span>
+          <strong>{record.qualityIndexLabel}</strong>
+        </div>
+        <div>
+          <span>Risk score</span>
+          <strong>{record.riskLabel}</strong>
+        </div>
+        <div>
+          <span>Water access</span>
+          <strong>{record.drinkingWaterDisplay || "N/A"}</strong>
+        </div>
+        <div>
+          <span>Sanitation</span>
+          <strong>{record.sanitationDisplay || "N/A"}</strong>
+        </div>
       </div>
       <div className="map-drawer-actions">
-        <Link className="primary-button" to={guidanceHref}>
+        <Link id="mapOpenGuidance" className="primary-button" to={guidanceHref}>
           {meta ? "Open featured guidance" : "Open guidance"}
         </Link>
-        <Link className="secondary-button" to={buildAssistantHref(record)}>
+        <Link id="mapAskAssistant" className="secondary-button" to={buildAssistantHref(record)}>
           Ask assistant
         </Link>
       </div>
@@ -242,18 +168,35 @@ function PlaceDrawer({ payload, candidate }) {
       <div className="map-drawer-head">
         <div>
           <p className="eyebrow">Selected place</p>
-          <h2>{region.flag || "\u{1F30D}"} {region.name}</h2>
+          <h2>
+            {region.flag || "\u{1F30D}"} {region.name}
+          </h2>
         </div>
         <StatusBadge status={region.status} statusLabel={region.statusLabel} />
       </div>
       <p className="map-drawer-copy">{region.quickSummary || region.oneLiner}</p>
       <div className="map-place-note">{fallbackLabel}</div>
       <div className="map-stat-grid">
-        <div><span>Quality index</span><strong>{region.qualityIndex}/100</strong></div>
-        <div><span>Water access</span><strong>{liveData?.drinkingWater?.display || "Unavailable"}</strong></div>
-        <div><span>Sanitation</span><strong>{liveData?.sanitation?.display || "Unavailable"}</strong></div>
-        <div><span>Weather</span><strong>{liveData?.weather ? `${liveData.weather.temperatureC}°C` : "Unavailable"}</strong></div>
-        <div><span>Conditions</span><strong>{liveData?.weather?.label || region.country || "Unavailable"}</strong></div>
+        <div>
+          <span>Quality index</span>
+          <strong>{region.qualityIndex}/100</strong>
+        </div>
+        <div>
+          <span>Water access</span>
+          <strong>{liveData?.drinkingWater?.display || "Unavailable"}</strong>
+        </div>
+        <div>
+          <span>Sanitation</span>
+          <strong>{liveData?.sanitation?.display || "Unavailable"}</strong>
+        </div>
+        <div>
+          <span>Weather</span>
+          <strong>{liveData?.weather ? `${liveData.weather.temperatureC}°C` : "Unavailable"}</strong>
+        </div>
+        <div>
+          <span>Conditions</span>
+          <strong>{liveData?.weather?.label || region.country || "Unavailable"}</strong>
+        </div>
       </div>
       <div className="map-drawer-actions">
         <Link className="primary-button" to={buildRegionHrefFromCandidate(candidate)}>
@@ -276,139 +219,93 @@ function PlaceDrawerPending({ candidate }) {
           <h2>{candidate.label}</h2>
         </div>
         <div className="status-badge status-badge-unavailable" role="status" aria-label="Loading place details">
-          <span className="status-dot" aria-hidden="true">&hellip;</span>
+          <span className="status-dot" aria-hidden="true">
+            &hellip;
+          </span>
           <span>Loading details</span>
         </div>
       </div>
       <p className="map-drawer-copy">
-        Dropping into this place now. Aqua Guide is pulling local weather and broader water-access indicators for the closest supported region.
+        Pulling local weather and broader water-access indicators for this place now.
       </p>
       <div className="map-stat-grid map-stat-grid-pending">
-        <div><span>Quality index</span><strong>Loading...</strong></div>
-        <div><span>Water access</span><strong>Loading...</strong></div>
-        <div><span>Sanitation</span><strong>Loading...</strong></div>
-        <div><span>Weather</span><strong>Loading...</strong></div>
-        <div><span>Conditions</span><strong>{candidate.country || "Loading..."}</strong></div>
+        <div>
+          <span>Quality index</span>
+          <strong>Loading...</strong>
+        </div>
+        <div>
+          <span>Water access</span>
+          <strong>Loading...</strong>
+        </div>
+        <div>
+          <span>Sanitation</span>
+          <strong>Loading...</strong>
+        </div>
+        <div>
+          <span>Weather</span>
+          <strong>Loading...</strong>
+        </div>
+        <div>
+          <span>Conditions</span>
+          <strong>{candidate.country || "Loading..."}</strong>
+        </div>
       </div>
     </>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main component                                                     */
-/* ------------------------------------------------------------------ */
+function mapShapeStyle(record, isSelected) {
+  const status = record?.status || "unavailable";
+  return {
+    fill: riskPalette[status],
+    stroke: isSelected ? "#f8fafc" : riskBorderPalette[status],
+    strokeWidth: isSelected ? 3.2 : 1.6,
+    opacity: isSelected ? 1 : 0.94,
+  };
+}
+
+function buildSpotlightModel(feature, record) {
+  const projection = geoMercator().fitExtent(
+    [
+      [CARD_PADDING, CARD_PADDING],
+      [CARD_WIDTH - CARD_PADDING, CARD_HEIGHT - CARD_PADDING],
+    ],
+    feature
+  );
+  const path = geoPath(projection);
+  const d = path(feature);
+  const centroid = path.centroid(feature);
+
+  if (!d || Number.isNaN(centroid[0]) || Number.isNaN(centroid[1])) {
+    return null;
+  }
+
+  return { record, d, centroid };
+}
 
 export default function MapPage() {
   const { showToast } = useToast();
-
-  // Drawer state
   const [drawer, setDrawer] = useState({ type: "empty", data: null, status: "unavailable" });
-
-  // Map refs
-  const mapContainerRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const countryLayersRef = useRef(new Map());
-  const selectedIso3Ref = useRef("");
-  const placeMarkerRef = useRef(null);
-  const geoLayerRef = useRef(null);
+  const [selectedIso3, setSelectedIso3] = useState("KEN");
+  const [mapFeatures, setMapFeatures] = useState([]);
+  const [mapError, setMapError] = useState("");
   const [mapReady, setMapReady] = useState(false);
-  const [mapError, setMapError] = useState(null);
 
-  // Set document title
   useEffect(() => {
     document.title = "Map - Aqua Guide";
   }, []);
 
-  /* ---- Initialize Leaflet map ---- */
-
-  useEffect(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
-
-    const map = L.map(mapContainerRef.current, {
-      attributionControl: false,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      dragging: true,
-      tap: false,
-      minZoom: 0,
-      maxZoom: 8,
-    });
-
-    mapInstanceRef.current = map;
-
-    return () => {
-      map.remove();
-      mapInstanceRef.current = null;
-    };
+  const selectCountryByIso3 = useCallback((iso3) => {
+    const record = getCountryWaterRecord(iso3);
+    if (!record) return;
+    setSelectedIso3(iso3);
+    setDrawer({ type: "country", data: record, status: record.status });
   }, []);
-
-  /* ---- select country by iso3 (imperative, used by callbacks) ---- */
-
-  const selectCountryByIso3 = useCallback(
-    (iso3, options = {}) => {
-      const record = getCountryWaterRecord(iso3);
-      if (!record) return;
-
-      const map = mapInstanceRef.current;
-      const countryLayers = countryLayersRef.current;
-
-      selectedIso3Ref.current = iso3;
-
-      if (!options.keepPlaceMarker && placeMarkerRef.current) {
-        placeMarkerRef.current.remove();
-        placeMarkerRef.current = null;
-      }
-
-      setDrawer({ type: "country", data: record, status: record.status });
-
-      countryLayers.forEach((layer, layerIso3) => {
-        layer.setStyle(styleForRecord(getCountryWaterRecord(layerIso3), layerIso3 === iso3));
-      });
-
-      if (!options.skipFocus && map) {
-        const layer = countryLayers.get(iso3);
-        if (layer) {
-          const bounds = layer.getBounds();
-          if (bounds.isValid()) {
-            const currentBounds = map.getBounds();
-            if (!currentBounds.isValid() || !currentBounds.pad(-0.18).contains(bounds)) {
-              map.flyToBounds(bounds, { padding: [28, 28], maxZoom: 4, duration: 0.7 });
-            }
-          }
-        }
-      }
-    },
-    []
-  );
-
-  /* ---- handle place candidate from search ---- */
 
   const handleCandidate = useCallback(
     async (candidate) => {
-      const map = mapInstanceRef.current;
-      if (!map) return;
-
       showToast(`Loading guidance for ${candidate.label || candidate.name}...`);
-
-      // Remove old place marker
-      if (placeMarkerRef.current) {
-        placeMarkerRef.current.remove();
-        placeMarkerRef.current = null;
-      }
-
-      // Add circle marker
-      placeMarkerRef.current = L.circleMarker([candidate.lat, candidate.lng], {
-        radius: 8,
-        color: "#f8fafc",
-        weight: 2,
-        fillColor: "#6b9e8a",
-        fillOpacity: 0.92,
-      })
-        .addTo(map)
-        .bindTooltip(candidate.label || candidate.name, { direction: "top", offset: [0, -10] });
-
       setDrawer({ type: "loading", data: candidate, status: "unavailable" });
-      map.flyTo([candidate.lat, candidate.lng], Math.max(map.getZoom(), 6), { duration: 0.55 });
 
       try {
         const payload = await resolveDynamicPayloadFromCoordinates({
@@ -420,8 +317,8 @@ export default function MapPage() {
           iso2: candidate.countryCode,
         });
 
-        if (payload.region.countryIso3) {
-          selectCountryByIso3(payload.region.countryIso3, { keepPlaceMarker: true, skipFocus: true });
+        if (payload.region.countryIso3 && featuredCountryIso3Set.has(payload.region.countryIso3)) {
+          setSelectedIso3(payload.region.countryIso3);
         }
 
         setDrawer({
@@ -433,120 +330,8 @@ export default function MapPage() {
         showToast("Could not load place details");
       }
     },
-    [selectCountryByIso3, showToast]
+    [showToast]
   );
-
-  /* ---- Fetch TopoJSON and build geoJSON layer ---- */
-
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    let cancelled = false;
-
-    async function loadCountries() {
-      try {
-        const response = await fetch("/data/world-countries.topo.json");
-        const topology = await response.json();
-        if (cancelled) return;
-
-        const worldFeatureCollection = normalizeFeatureCollectionAntimeridian(
-          topojson.feature(topology, topology.objects.countries)
-        );
-
-        const geoLayer = L.geoJSON(worldFeatureCollection, {
-          filter(feature) {
-            const numericCode = String(feature?.id || "").padStart(3, "0");
-            return numericCode !== "010"; // Exclude Antarctica
-          },
-          style(feature) {
-            const record = getCountryWaterRecordByNumericCode(
-              String(feature?.id || "").padStart(3, "0")
-            );
-            return styleForRecord(record, record?.iso3 === selectedIso3Ref.current);
-          },
-          onEachFeature(feature, layer) {
-            const numericCode = String(feature?.id || "").padStart(3, "0");
-            const record = getCountryWaterRecordByNumericCode(numericCode) || {
-              iso3: "",
-              country: feature?.properties?.name || "Unknown country",
-              status: "unavailable",
-              statusLabel: "Data limited",
-              riskLabel: "N/A",
-            };
-
-            if (record.iso3) {
-              countryLayersRef.current.set(record.iso3, layer);
-            }
-
-            layer.bindTooltip(`${record.country} - ${record.riskLabel}`, {
-              sticky: true,
-              direction: "auto",
-            });
-
-            layer.on("click", () => {
-              if (record.iso3) {
-                selectCountryByIso3(record.iso3);
-              }
-            });
-
-            layer.on("mouseover", () => {
-              if (record.iso3 && record.iso3 !== selectedIso3Ref.current) {
-                layer.setStyle({ weight: 1.9, fillOpacity: 0.96 });
-              }
-            });
-
-            layer.on("mouseout", () => {
-              layer.setStyle(
-                styleForRecord(record, record.iso3 === selectedIso3Ref.current)
-              );
-            });
-          },
-        }).addTo(map);
-
-        geoLayerRef.current = geoLayer;
-
-        const bounds = geoLayer.getBounds();
-        if (bounds.isValid()) {
-          map.fitBounds(bounds, { padding: [16, 16] });
-          map.setMaxBounds(bounds.pad(0.15));
-        }
-
-        // Decorate interactive layers for accessibility
-        map.whenReady(() => {
-          window.requestAnimationFrame(() => {
-            geoLayer.eachLayer((layer) => {
-              const numericCode = String(layer.feature?.id || "").padStart(3, "0");
-              const record = getCountryWaterRecordByNumericCode(numericCode);
-              const element = layer.getElement?.();
-              if (!element || !record?.iso3) return;
-              element.dataset.iso3 = record.iso3;
-              element.setAttribute("tabindex", "0");
-              element.setAttribute("role", "button");
-              element.setAttribute("aria-label", `Open ${record.country} details`);
-              element.addEventListener("keydown", (event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  selectCountryByIso3(record.iso3);
-                }
-              });
-            });
-          });
-        });
-
-        if (!cancelled) setMapReady(true);
-      } catch (err) {
-        if (!cancelled) {
-          setMapError(err instanceof Error ? err.message : "Could not load the interactive map right now.");
-        }
-      }
-    }
-
-    loadCountries();
-    return () => { cancelled = true; };
-  }, [selectCountryByIso3]);
-
-  /* ---- Search handlers ---- */
 
   const handleSearchSubmit = useCallback(
     async (query) => {
@@ -566,13 +351,67 @@ export default function MapPage() {
     [handleCandidate, showToast]
   );
 
-  /* ---- Hotspot buttons data ---- */
+  useEffect(() => {
+    let cancelled = false;
 
-  const hotspots = featuredRegions
-    .map((r) => getCountryWaterRecord(r.countryIso3))
-    .filter(Boolean);
+    async function loadFeaturedMap() {
+      try {
+        setMapReady(false);
+        const response = await fetch("/data/world-countries.topo.json");
+        const topology = await response.json();
+        if (cancelled) return;
 
-  /* ---- Drawer class ---- */
+        const featureCollection = topojson.feature(topology, topology.objects.countries);
+        const featured = featureCollection.features.filter((feature) => {
+          const record = getCountryWaterRecordByNumericCode(String(feature?.id || "").padStart(3, "0"));
+          return Boolean(record?.iso3 && featuredCountryIso3Set.has(record.iso3));
+        });
+
+        setMapFeatures(featured);
+        setMapReady(true);
+        setMapError("");
+      } catch (error) {
+        if (cancelled) return;
+        setMapError(error instanceof Error ? error.message : "Could not load the featured map.");
+      }
+    }
+
+    loadFeaturedMap();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (drawer.type === "empty") {
+      selectCountryByIso3("KEN");
+    }
+  }, [drawer.type, selectCountryByIso3]);
+
+  const spotlightCards = useMemo(() => {
+    const featureByIso3 = new Map(
+      mapFeatures
+        .map((feature) => {
+          const record = getCountryWaterRecordByNumericCode(String(feature?.id || "").padStart(3, "0"));
+          return record ? [record.iso3, feature] : null;
+        })
+        .filter(Boolean)
+    );
+
+    return featuredRegions
+      .map((region) => {
+        const record = getCountryWaterRecord(region.countryIso3);
+        const feature = featureByIso3.get(region.countryIso3);
+        if (!record || !feature) return null;
+        const shape = buildSpotlightModel(feature, record);
+        if (!shape) return null;
+        return {
+          ...shape,
+          meta: featuredCountryMeta.get(record.iso3),
+        };
+      })
+      .filter(Boolean);
+  }, [mapFeatures]);
 
   const drawerClass = `map-drawer map-drawer-${drawer.status || "unavailable"}`;
 
@@ -581,15 +420,14 @@ export default function MapPage() {
       <section className="map-page">
         <div className="section-head">
           <div>
-            <p className="section-label">Global overview</p>
-            <h1>Global water safety map</h1>
+            <p className="section-label">Featured overview</p>
+            <h1>Featured country map</h1>
           </div>
-          <p className="section-meta">Explore water conditions by country</p>
+          <p className="section-meta">Keep the story tight: four countries up front, any city still searchable.</p>
         </div>
 
         <div className="map-layout">
           <div className="map-panel">
-            {/* Search + legend toolbar */}
             <div className="map-toolbar">
               <PlaceSearch
                 onSelect={handleCandidate}
@@ -600,74 +438,98 @@ export default function MapPage() {
                 darkTheme
               />
               <div className="map-legend" aria-label="Risk legend">
-                <span><i className="legend-swatch legend-advisory"></i>High pressure</span>
-                <span><i className="legend-swatch legend-caution"></i>Watch closely</span>
-                <span><i className="legend-swatch legend-safe"></i>Stronger access</span>
-                <span><i className="legend-swatch legend-unavailable"></i>Data limited</span>
+                <span>
+                  <i className="legend-swatch legend-advisory"></i>High pressure
+                </span>
+                <span>
+                  <i className="legend-swatch legend-caution"></i>Watch closely
+                </span>
+                <span>
+                  <i className="legend-swatch legend-safe"></i>Stronger access
+                </span>
+                <span>
+                  <i className="legend-swatch legend-unavailable"></i>Data limited
+                </span>
               </div>
             </div>
 
-            {/* Map canvas */}
-            <div className={`map-canvas-shell${!mapReady ? " is-loading" : ""}`}>
-              <div ref={mapContainerRef} className="world-map"></div>
-              {!mapReady && !mapError && (
-                <div className="map-loading">Loading countries...</div>
-              )}
-              {mapError && (
-                <div className="map-loading">{mapError}</div>
-              )}
-            </div>
-
-            {/* Hotspot strip */}
-            <div className="hotspot-strip">
-              <div className="section-head compact">
-                <div>
-                  <p className="section-label">Featured profiles</p>
-                  <h2>In-depth country profiles</h2>
+            <div className={`map-canvas-shell atlas-shell${!mapReady ? " is-loading" : ""}`}>
+              {!mapReady && !mapError && <div className="map-loading">Loading featured countries...</div>}
+              {mapError && <div className="map-loading">{mapError}</div>}
+              {mapReady && !mapError && (
+                <div className="country-atlas-grid">
+                  {spotlightCards.map(({ record, d, centroid, meta }) => {
+                    const isSelected = record.iso3 === selectedIso3;
+                    const style = mapShapeStyle(record, isSelected);
+                    return (
+                      <button
+                        key={record.iso3}
+                        type="button"
+                        className={`atlas-card atlas-card-${record.status}${isSelected ? " is-selected" : ""}`}
+                        data-iso3={record.iso3}
+                        onClick={() => selectCountryByIso3(record.iso3)}
+                      >
+                        <div className="atlas-card-top">
+                          <div>
+                            <span className="atlas-card-kicker">{meta?.regionName?.split(",")[0] || record.country}</span>
+                            <h2>
+                              {record.flag || "\u{1F30D}"} {record.country}
+                            </h2>
+                          </div>
+                          <StatusBadge status={record.status} statusLabel={record.statusLabel} />
+                        </div>
+                        <div className="atlas-card-map">
+                          <svg
+                            className="atlas-card-svg"
+                            viewBox={`0 0 ${CARD_WIDTH} ${CARD_HEIGHT}`}
+                            role="img"
+                            aria-label={`Clickable ${record.country} map card`}
+                          >
+                            <rect x="0" y="0" width={CARD_WIDTH} height={CARD_HEIGHT} className="map-ocean" rx="24" />
+                            <path d={d} className="map-country" style={style} />
+                            <g className="map-country-label" transform={`translate(${centroid[0]}, ${centroid[1]})`}>
+                              <circle r="6" className="map-country-label-dot" />
+                            </g>
+                          </svg>
+                        </div>
+                        <div className="atlas-card-metrics">
+                          <div>
+                            <span>Water access</span>
+                            <strong>{record.drinkingWaterDisplay || "N/A"}</strong>
+                          </div>
+                          <div>
+                            <span>Sanitation</span>
+                            <strong>{record.sanitationDisplay || "N/A"}</strong>
+                          </div>
+                          <div>
+                            <span>Quality index</span>
+                            <strong>{record.qualityIndexLabel}</strong>
+                          </div>
+                        </div>
+                        <p className="atlas-card-copy">{meta?.utility || meta?.quickSummary || getCountrySummary(record)}</p>
+                      </button>
+                    );
+                  })}
                 </div>
-              </div>
-              <div className="hotspot-row">
-                {hotspots.map((record) => {
-                  const meta = featuredCountryMeta.get(record.iso3);
-                  return (
-                    <button
-                      key={record.iso3}
-                      className={`hotspot-chip hotspot-chip-${record.status}`}
-                      type="button"
-                      onClick={() => selectCountryByIso3(record.iso3)}
-                    >
-                      <span>{record.flag || "\u{1F30D}"} {record.country}</span>
-                      <strong>{meta?.regionName || record.country}</strong>
-                    </button>
-                  );
-                })}
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Drawer */}
-          <aside className={drawerClass}>
+          <aside id="mapDrawer" className={drawerClass}>
             {drawer.type === "empty" && (
               <>
                 <p className="eyebrow">How to use this map</p>
-                <h2>Select a country or search for a city to see water safety details</h2>
+                <h2>Click a featured country or search for a city</h2>
                 <p>
-                  The map highlights featured country profiles, but search can still jump
-                  to any city and pull local weather plus country-level access signals.
+                  This view stays intentionally focused on the countries you present. If you need another place, search
+                  for any city and Aqua Guide will open the broader regional context.
                 </p>
               </>
             )}
-            {drawer.type === "country" && drawer.data && (
-              <CountryDrawer record={drawer.data} />
-            )}
-            {drawer.type === "loading" && drawer.data && (
-              <PlaceDrawerPending candidate={drawer.data} />
-            )}
+            {drawer.type === "country" && drawer.data && <CountryDrawer record={drawer.data} />}
+            {drawer.type === "loading" && drawer.data && <PlaceDrawerPending candidate={drawer.data} />}
             {drawer.type === "place" && drawer.data && (
-              <PlaceDrawer
-                payload={drawer.data.payload}
-                candidate={drawer.data.candidate}
-              />
+              <PlaceDrawer payload={drawer.data.payload} candidate={drawer.data.candidate} />
             )}
           </aside>
         </div>

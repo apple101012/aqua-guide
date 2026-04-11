@@ -60,15 +60,15 @@ function waitForServer(url, timeoutMs = 20000) {
   });
 }
 
-const server = spawn("node", ["server.mjs"], {
+const server = spawn("cmd", ["/c", `npm run build && npm run preview -- --host 127.0.0.1 --port ${port}`], {
   cwd: root,
-  env: { ...process.env, PORT: String(port), OPENAI_API_KEY: "" },
+  env: { ...process.env, OPENAI_API_KEY: "" },
   stdio: "ignore"
 });
 
 try {
   await mkdir(outputDir, { recursive: true });
-  await waitForServer(`${baseUrl}/healthz`);
+  await waitForServer(baseUrl);
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
@@ -192,19 +192,19 @@ try {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await page.screenshot({ path: path.join(outputDir, "01-home-overview.png"), fullPage: false });
 
-  await page.goto(`${baseUrl}/region/?id=turkana-kenya`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/countries/?id=turkana-kenya`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => document.querySelector("h1")?.textContent?.includes("Turkana County, Kenya"));
   await page.screenshot({ path: path.join(outputDir, "02-region-turkana.png"), fullPage: false });
 
-  await page.click("[data-action-id='treat']");
-  await page.waitForSelector("#modalTitle");
+  await page.locator(".action-card").first().click();
+  await page.waitForSelector(".modal-title");
   await page.screenshot({ path: path.join(outputDir, "03-region-action-modal.png"), fullPage: false });
-  await page.click("#closeModalButton");
+  await page.getByRole("button", { name: /Close modal/i }).click();
 
   await page.goto(`${baseUrl}/assistant/?region=turkana-kenya`, { waitUntil: "networkidle" });
-  await page.click("[data-language='es']");
-  await page.fill("#assistantInput", "What is the first step in an advisory?");
-  await page.click("#assistantSendButton");
+  await page.getByRole("button", { name: /Spanish/i }).click();
+  await page.locator(".assistant-input").fill("What is the first step in an advisory?");
+  await page.locator(".icon-button").click();
   await page.waitForFunction(() => {
     const messages = Array.from(document.querySelectorAll(".message.assistant .message-bubble"));
     const text = messages.at(-1)?.textContent ?? "";
@@ -213,11 +213,10 @@ try {
   await page.screenshot({ path: path.join(outputDir, "04-assistant-spanish.png"), fullPage: false });
 
   await page.goto(`${baseUrl}/map/`, { waitUntil: "networkidle" });
-  await page.waitForFunction(() => document.getElementById("mapLoading")?.hidden === true);
-  await page.waitForSelector(".leaflet-interactive[data-iso3='KEN']");
+  await page.waitForSelector(".atlas-card[data-iso3='KEN']");
   await page.screenshot({ path: path.join(outputDir, "05-map-overview.png"), fullPage: false });
   await page.evaluate(() => {
-    document.querySelector(".leaflet-interactive[data-iso3='KEN']")?.dispatchEvent(
+    document.querySelector(".atlas-card[data-iso3='KEN']")?.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true })
     );
   });
