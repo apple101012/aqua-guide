@@ -1,5 +1,5 @@
-import { findRegionByQuery, getMostCriticalRegion, getRegionById } from "../data/regions.js";
-import { formatCompactNumber, formatPercent } from "./common.js";
+import { findRegionByQuery, getMostCriticalRegion, getRegionById } from "../../data/regions.js";
+import { formatCompactNumber, formatPercent } from "../lib/common.js";
 
 const weatherCodeLabels = {
   0: "Clear",
@@ -139,7 +139,7 @@ async function fetchCountryMeta(iso2, fallbackCountry) {
       name: fallbackCountry || "Unknown country",
       cca2: "",
       cca3: "",
-      flag: "🌍",
+      flag: "\uD83C\uDF0D",
       languages: [],
       population: null,
       region: "",
@@ -157,7 +157,7 @@ async function fetchCountryMeta(iso2, fallbackCountry) {
     name: country?.name?.common || fallbackCountry || upper,
     cca2: country?.cca2 || upper,
     cca3: country?.cca3 || "",
-    flag: country?.flag || "🌍",
+    flag: country?.flag || "\uD83C\uDF0D",
     languages: Object.values(country?.languages || {}),
     population: Number(country?.population || 0) || null,
     region: country?.region || "",
@@ -431,7 +431,7 @@ function buildDynamicRegion(place, countryMeta, liveData) {
     ? `${liveData.sanitation.display} are reported to have at least basic sanitation access (${liveData.sanitation.year}).`
     : "Sanitation data was unavailable during this lookup.";
   const weatherLine = liveData.weather
-    ? `Current weather near ${displayName} is ${liveData.weather.temperatureC}°C with ${liveData.weather.label.toLowerCase()}, wind near ${liveData.weather.windKmh} km/h, and ${liveData.weather.precipitationMm} mm of precipitation.`
+    ? `Current weather near ${displayName} is ${liveData.weather.temperatureC}\u00B0C with ${liveData.weather.label.toLowerCase()}, wind near ${liveData.weather.windKmh} km/h, and ${liveData.weather.precipitationMm} mm of precipitation.`
     : `Local weather was unavailable during this lookup, so Aqua Guide is leaning more heavily on household best practices.`;
 
   const quickSummary = risk.stormPressure
@@ -447,7 +447,7 @@ function buildDynamicRegion(place, countryMeta, liveData) {
     country: countryMeta.name,
     countryIso2: countryMeta.cca2,
     countryIso3: countryMeta.cca3,
-    flag: countryMeta.flag || "🌍",
+    flag: countryMeta.flag || "\uD83C\uDF0D",
     utility: `General household guidance for ${displayName}`,
     recordLabel: risk.recordLabel,
     coordinates: { lat: place.lat, lng: place.lng },

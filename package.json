@@ -4,19 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:map-data": "node scripts/build-country-water-index.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "node server.mjs",
-    "screenshots": "node scripts/capture-screenshots.mjs",
+    "build:map-data": "node scripts/build-country-water-index.mjs",
     "test:chat-backend": "node scripts/test-chat-backend.mjs",
     "test:functional": "node scripts/test-functional.mjs",
-    "test:live-smoke": "node scripts/test-live-smoke.mjs",
-    "screenshots:presentation": "node scripts/capture-presentation.mjs"
+    "test:live-smoke": "node scripts/test-live-smoke.mjs"
   },
   "devDependencies": {
-    "playwright": "^1.59.1"
+    "@vitejs/plugin-react": "^6.0.1",
+    "playwright": "^1.59.1",
+    "vite": "^8.0.8"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.14.0",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   }

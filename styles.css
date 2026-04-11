@@ -794,17 +794,17 @@ svg {
 }
 
 .hero-status-card.solid.hero-status-card-advisory {
-  background: #fcf2ef;
+  background: var(--red-wash);
   border-color: rgba(196, 77, 77, 0.24);
 }
 
 .hero-status-card.solid.hero-status-card-caution {
-  background: #faf4e7;
+  background: var(--amber-wash);
   border-color: rgba(200, 145, 46, 0.24);
 }
 
 .hero-status-card.solid.hero-status-card-safe {
-  background: #edf5ef;
+  background: var(--green-wash);
   border-color: rgba(58, 154, 106, 0.22);
 }
 
@@ -1096,7 +1096,7 @@ svg {
   margin-top: 24px;
   padding: 22px 24px;
   border-radius: var(--radius-lg);
-  background: #eeebe4;
+  background: var(--gray-100);
   border: 1px solid rgba(168, 160, 148, 0.2);
   display: flex;
   align-items: start;
@@ -1300,7 +1300,7 @@ svg {
   grid-template-columns: minmax(0, 1.3fr) minmax(260px, 360px);
   gap: 22px;
   align-items: center;
-  background: #eeebe4;
+  background: var(--gray-100);
 }
 
 .map-promo h2,
@@ -1360,7 +1360,7 @@ svg {
 }
 
 .map-panel .section-label {
-  color: #7fb29e;
+  color: var(--blue-light);
 }
 
 .map-panel,
@@ -1607,7 +1607,7 @@ svg {
 
 .map-drawer .eyebrow,
 .map-drawer-search span {
-  color: #7fb29e;
+  color: var(--blue-light);
 }
 
 .map-drawer-actions {
@@ -1713,7 +1713,7 @@ footer {
 
 .resource-card-amber .resource-card-icon {
   background: var(--amber-wash);
-  color: #b45309;
+  color: var(--amber);
 }
 
 .resource-card-green {
@@ -1722,7 +1722,7 @@ footer {
 
 .resource-card-green .resource-card-icon {
   background: var(--green-wash);
-  color: #15803d;
+  color: var(--green-safe);
 }
 
 @media (max-width: 1040px) {

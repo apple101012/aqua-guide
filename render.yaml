@@ -2,9 +2,13 @@ services:
   - type: static_site
     name: aqua-guide-static
     env: static
-    buildCommand: echo ready
-    staticPublishPath: ./
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
     pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
   - type: web
     name: aqua-guide-chat
@@ -17,6 +21,6 @@ services:
       - key: OPENAI_MODEL
         value: gpt-4.1
       - key: ALLOWED_ORIGINS
-        value: https://aqua-guide-static.onrender.com,http://localhost:4173,http://127.0.0.1:4173
+        value: https://aqua-guide-static.onrender.com,http://localhost:4173,http://127.0.0.1:4173,http://localhost:5173,http://127.0.0.1:5173
       - key: OPENAI_API_KEY
         sync: false

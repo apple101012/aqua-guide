@@ -1,4 +1,4 @@
-import { findRegionByQuery } from "../data/regions.js";
+import { findRegionByQuery } from "../../data/regions.js";
 import { buildTrackedPayload, hydrateTrackedPayload, resolveDynamicPayloadFromCoordinates, resolveDynamicPayloadFromQuery } from "./location-service.js";
 
 const hostedChatApiBaseUrl = "https://aqua-guide-chat.onrender.com";
@@ -45,7 +45,7 @@ function buildLocalizedAssistantFallback({ question, language, location }) {
     fr: `**Resume :**\n1. **Commencez par cette action :** ${firstAction}.\n2. Gardez l'eau traitee la plus propre pour boire, les medicaments et les enfants.\n3. Partagez un plan simple pour que tout le foyer applique les memes regles.\n\n${contextLine || quickSummary}`,
     sw: `**Muhtasari:**\n1. **Anza na hatua hii:** ${firstAction}.\n2. Tenga maji yaliyotibiwa na yaliyo safi zaidi kwa kunywa, dawa, na watoto.\n3. Shiriki mpango mfupi wa kaya ili kila mtu afuate hatua zilezile.\n\n${contextLine || quickSummary}`,
     ar: `**ملخص:**\n1. **ابدأ بهذه الخطوة:** ${firstAction}.\n2. احتفظ بأنظف مياه معالجة للشرب والدواء والأطفال.\n3. شارك خطة منزلية قصيرة حتى يتبع الجميع القواعد نفسها.\n\n${contextLine || quickSummary}`,
-    bn: `**সারসংক্ষেপ:**\n1. **এই ধাপ দিয়ে শুরু করুন:** ${firstAction}।\n2. সবচেয়ে পরিষ্কার পরিশোধিত পানি পান, ওষুধ ও শিশুদের জন্য আলাদা রাখুন।\n3. একটি ছোট পরিবারের পরিকল্পনা ভাগ করুন যাতে সবাই একই নিয়ম মানে।\n\n${contextLine || quickSummary}`,
+    bn: `**সারসংক্ষেপ:**\n1. **এই ধাপ দিয়ে শুরু করুন:** ${firstAction}।\n2. সবচেয়ে পরিষ্কার পরিশোধিত পানি পান, ওষুধ ও শিশুদের জন্য আলাদা রাখুন।\n3. একটি ছোট পরিবারের পরিকল্পনা ভাগ করুন যাতে সবাই একই নিয়ম মানে।\n\n${contextLine || quickSummary}`,
     pt: `**Resumo:**\n1. **Comece com esta acao:** ${firstAction}.\n2. Guarde a agua tratada mais limpa para beber, remedios e criancas.\n3. Compartilhe um plano curto da casa para que todos sigam as mesmas regras.\n\n${contextLine || quickSummary}`,
     ht: `**Rezime:**\n1. **Komanse ak etap sa a:** ${firstAction}.\n2. Kenbe dlo trete ki pi pwop la pou bwè, medikaman, ak timoun.\n3. Pataje yon ti plan lakay pou tout moun suiv menm règ yo.\n\n${contextLine || quickSummary}`
   };

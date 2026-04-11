@@ -10,7 +10,7 @@ const envFile = join(root, ".env");
 const envConfig = existsSync(envFile) ? parseDotEnv(readFileSync(envFile, "utf8")) : {};
 const openAiApiKey = process.env.OPENAI_API_KEY || envConfig.OPENAI_API_KEY;
 const openAiModel = process.env.OPENAI_MODEL || envConfig.OPENAI_MODEL || "gpt-4.1";
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || envConfig.ALLOWED_ORIGINS || "http://localhost:4173,http://127.0.0.1:4173,https://aqua-guide-static.onrender.com")
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || envConfig.ALLOWED_ORIGINS || "http://localhost:4173,http://127.0.0.1:4173,http://localhost:5173,http://127.0.0.1:5173,https://aqua-guide-static.onrender.com")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

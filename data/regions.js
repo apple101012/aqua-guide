@@ -6,7 +6,7 @@ export const regions = [
     countryIso2: "BD",
     countryIso3: "BGD",
     flag: "🇧🇩",
-    utility: "Coastal settlements and camp-adjacent water access",
+    utility: "Coastal area with saltwater intrusion and weather-vulnerable water access",
     recordLabel: "Salinity pressure and infrastructure strain",
     coordinates: { lat: 21.4272, lng: 92.0058 },
     status: "caution",
@@ -15,15 +15,15 @@ export const regions = [
     metrics: { lead: "3.4", chlorine: "0.5", ph: "7.1", updated: "Apr 10, 8:15 AM" },
     tag: "Coastal resilience",
     oneLiner:
-      "Families need clear treatment and storage guidance when storm damage and salinity pressure disrupt reliable drinking water.",
-    heroTitle: "Water guidance for high-stress coastal communities.",
+      "Storm surges and rising salinity regularly disrupt water reliability along the coast, making treatment and safe storage essential.",
+    heroTitle: "Water safety in coastal Bangladesh",
     heroDescription:
-      "Aqua Guide translates public health and field-response context into plain-language steps households can actually follow.",
-    summaryTitle: "What households should know",
+      "Coastal Bangladesh faces recurring storm damage and saltwater intrusion that can compromise tap and well water without warning. This guide covers the steps you need to protect your drinking water, whether you live here or are visiting.",
+    summaryTitle: "What you need to know",
     summaryText:
-      "Water conditions in and around coastal settlements can shift quickly after storms, flooding, or infrastructure damage. Aqua Guide keeps the response practical: choose treated or bottled water for direct consumption, separate safe water from utility water, and keep updates easy to share with the household.",
+      "Water conditions along the coast can shift quickly after storms, flooding, or infrastructure damage. Choose treated or bottled water for drinking and cooking, keep safe water separated from water used for washing, and check back for updated conditions before returning to your normal routine.",
     quickSummary:
-      "Use treated or bottled water for drinking and cooking, keep safe water covered, and wait for the next trusted update before returning to normal use.",
+      "Stick to treated or bottled water for drinking and cooking. Keep your safe water covered and separated from other uses. Check for updates before going back to tap or well water.",
     highlights: [
       {
         tone: "caution",
@@ -33,8 +33,8 @@ export const regions = [
       },
       {
         tone: "info",
-        title: "Household-first language",
-        detail: "The product converts technical context into actions families can follow immediately.",
+        title: "Plain-language guidance",
+        detail: "Technical water quality data is broken down into clear actions you can follow right away.",
         icon: "shield"
       },
       {
@@ -49,19 +49,19 @@ export const regions = [
       { label: "WHO drinking-water guidance", icon: "file" },
       { label: "Regional situation summaries", icon: "monitor" }
     ],
-    actionsTitle: "Priority household actions",
-    actionsSubtitle: "Keep treatment, storage, and sharing simple enough to repeat under pressure.",
+    actionsTitle: "Water safety essentials",
+    actionsSubtitle: "Essential steps to keep your water safe in coastal conditions.",
     actions: [
       {
         id: "treat",
         title: "Treat drinking water first",
         description: "Use boiled, chlorinated, or bottled water for drinking, cooking, and brushing teeth.",
         detail:
-          "The first action should always be obvious. This card keeps the response focused on the safest immediate step.",
+          "Saltwater intrusion and storm runoff can contaminate sources that normally look and taste fine. Treating water before consumption is the single most effective step to prevent waterborne illness.",
         steps: [
           "Reserve treated or bottled water for drinking and cooking first.",
           "If bottled water is limited, boil or disinfect water using locally trusted guidance.",
-          "Keep untreated water physically separate from household drinking water."
+          "Keep untreated water physically separate from your drinking water."
         ],
         tone: "red",
         icon: "alert"
@@ -71,7 +71,7 @@ export const regions = [
         title: "Store safe water carefully",
         description: "Use a clean covered container and keep safe water separate from washing water.",
         detail:
-          "Many contamination problems happen after collection. Clear storage rules reduce avoidable recontamination.",
+          "Many contamination problems happen after collection, not at the source. Using a covered container and avoiding hand contact with stored water prevents recontamination that can undo your treatment effort.",
         steps: [
           "Use a clean container with a cover whenever possible.",
           "Label drinking water if multiple containers are being used.",
@@ -82,14 +82,14 @@ export const regions = [
       },
       {
         id: "protect",
-        title: "Protect vulnerable family members",
+        title: "Protect vulnerable people first",
         description: "Reserve the safest water for babies, elders, and anyone already sick.",
         detail:
-          "Aqua Guide is strongest when it helps families triage quickly, not just understand statistics.",
+          "Infants, elderly individuals, and people who are already ill are far more susceptible to waterborne pathogens. Prioritizing the safest water for them can prevent serious complications.",
         steps: [
-          "Set aside the safest available water for infants, elders, and sick household members.",
+          "Set aside the safest available water for infants, elders, and sick individuals.",
           "Use treated water for medicine, formula, and oral rehydration.",
-          "Do not assume clear-looking water is safe enough for vulnerable users."
+          "Do not assume clear-looking water is safe enough for vulnerable people."
         ],
         tone: "amber",
         icon: "baby"
@@ -97,12 +97,12 @@ export const regions = [
       {
         id: "share",
         title: "Share one clear summary",
-        description: "Copy the household summary so family members and local volunteers use the same next steps.",
+        description: "Make sure everyone in your household or group is following the same water safety steps.",
         detail:
-          "The sharing moment makes the product feel like a communication tool, not only a static status page.",
+          "Miscommunication about which water is safe leads to accidental use of contaminated supplies. A single shared summary keeps everyone aligned, especially when conditions are changing.",
         steps: [
-          "Copy the summary from Aqua Guide.",
-          "Send it to the household, group chat, or local support contact.",
+          "Share the current water safety summary with your household or travel group.",
+          "Send it to the group chat or post it somewhere visible.",
           "Replace it when a newer trusted update becomes available."
         ],
         tone: "green",
@@ -110,9 +110,9 @@ export const regions = [
       }
     ],
     aiSuggestions: [
-      "What should a family do first?",
-      "Can this water be used for baby formula?",
-      "How should safe water be stored?",
+      "Is the tap water safe to drink right now?",
+      "Can I use this water for baby formula?",
+      "How should I store water after boiling it?",
       "Explain this in Bengali."
     ],
     searchAliases: ["cox's bazar", "camps", "bangladesh coast", "4700", "cxb"]
@@ -124,8 +124,8 @@ export const regions = [
     countryIso2: "KE",
     countryIso3: "KEN",
     flag: "🇰🇪",
-    utility: "Drought-affected communities and long-haul collection routes",
-    recordLabel: "Scarcity and untreated source risk",
+    utility: "Drought-affected area with limited sources and long collection distances",
+    recordLabel: "Severe scarcity and untreated source risk",
     coordinates: { lat: 2.7656, lng: 35.5977 },
     status: "advisory",
     statusLabel: "Advisory",
@@ -133,32 +133,32 @@ export const regions = [
     metrics: { lead: "5.7", chlorine: "0.2", ph: "6.9", updated: "Apr 10, 7:05 AM" },
     tag: "Scarcity response",
     oneLiner:
-      "When water is scarce and collection distances are long, families need triage guidance as much as contamination guidance.",
-    heroTitle: "Clarity for severe water-stress conditions.",
+      "Severe water scarcity means every drop counts. Careful triage of what you treat, store, and use first can make the difference.",
+    heroTitle: "Water safety in drought-affected Kenya",
     heroDescription:
-      "Aqua Guide keeps the message simple even when the situation is hard: treat the cleanest supply first and prioritize the highest-risk household needs.",
-    summaryTitle: "What households should know",
+      "Turkana County faces extreme water scarcity, with many communities relying on distant or untreated sources. This guide helps you prioritize: treat the cleanest supply first and direct it to the most critical needs.",
+    summaryTitle: "What you need to know",
     summaryText:
-      "In severe water-stress settings, the problem is not just whether water is contaminated. It is also whether enough safe water exists for the highest-priority needs. Aqua Guide helps families decide what comes first: treat the cleanest available supply, reserve it for direct consumption and medicine, and keep storage disciplined so precious safe water is not lost to avoidable contamination.",
+      "In drought-affected areas, the challenge is not just contamination but also whether enough safe water exists for the most critical needs. Treat the cleanest available supply first, reserve it for drinking and medicine, and keep storage disciplined so treated water is not lost to avoidable recontamination.",
     quickSummary:
-      "Treat the cleanest water first, reserve it for drinking and medicine, and protect the highest-risk people in the household.",
+      "Treat the cleanest water first. Reserve it for drinking and medicine. Protect the most vulnerable people in your group.",
     highlights: [
       {
         tone: "advisory",
         title: "Severe scarcity pressure",
-        detail: "Households may depend on distant or untreated sources with little room for error.",
+        detail: "Communities may depend on distant or untreated sources with little room for error.",
         icon: "alert"
       },
       {
         tone: "info",
         title: "Access and safety overlap",
-        detail: "Limited access changes the order of household decisions.",
+        detail: "When water is limited, the order you use it in matters as much as the quality.",
         icon: "droplet"
       },
       {
         tone: "teal",
         title: "Triage matters",
-        detail: "The app helps users decide which water use should happen first.",
+        detail: "Deciding which water use comes first can prevent the most serious health risks.",
         icon: "shield"
       }
     ],
@@ -167,15 +167,15 @@ export const regions = [
       { label: "WHO household water safety guidance", icon: "file" },
       { label: "Regional response updates", icon: "monitor" }
     ],
-    actionsTitle: "Priority household actions",
-    actionsSubtitle: "Start with the safest possible water and assign it to the highest-value uses first.",
+    actionsTitle: "Water safety essentials",
+    actionsSubtitle: "When water is scarce, every decision about treatment and use matters.",
     actions: [
       {
         id: "treat",
         title: "Treat the cleanest supply first",
         description: "Boil, chlorinate, or otherwise disinfect the best available source before any drinking use.",
         detail:
-          "Aqua Guide should reduce a high-stakes situation to one unmistakable first action. This is that action.",
+          "When water is scarce, you may be drawing from sources you would normally avoid. Treating the cleanest available source first gives you the highest-quality water for the uses that matter most.",
         steps: [
           "Identify the cleanest available source before mixing supplies together.",
           "Apply the locally trusted treatment method before any drinking or cooking use.",
@@ -186,14 +186,14 @@ export const regions = [
       },
       {
         id: "protect",
-        title: "Protect high-risk household members",
+        title: "Protect high-risk individuals first",
         description: "Reserve the safest water for babies, elders, and anyone who is dehydrated or sick.",
         detail:
-          "The product becomes more useful when it helps households make a sequence of decisions, not just absorb a status label.",
+          "Dehydration and waterborne illness hit young children, elderly people, and those already weakened the hardest. In scarcity conditions, directing the safest water to them first is the highest-impact decision you can make.",
         steps: [
-          "Prioritize infants, elders, and sick household members first.",
+          "Prioritize infants, elders, and sick individuals first.",
           "Use treated water for formula, medicine, and oral rehydration.",
-          "Keep one dedicated container for the household's highest-priority use."
+          "Keep one dedicated container for the highest-priority use."
         ],
         tone: "amber",
         icon: "baby"
@@ -203,7 +203,7 @@ export const regions = [
         title: "Prevent recontamination after collection",
         description: "Protect safe water during transport and storage so treatment effort is not wasted.",
         detail:
-          "The handoff from collection to use is where many preventable failures happen, so the product keeps storage visible.",
+          "The journey from source to use is where many preventable contamination events happen. Covering containers and avoiding hand contact protects the treatment effort you already invested.",
         steps: [
           "Use covered containers whenever possible.",
           "Do not touch stored water with unclean cups or hands.",
@@ -214,22 +214,22 @@ export const regions = [
       },
       {
         id: "share",
-        title: "Share the household guidance",
-        description: "Use one plain-language summary so everyone in the household is operating from the same plan.",
+        title: "Share the water safety plan",
+        description: "Use one plain-language summary so everyone is working from the same priorities.",
         detail:
-          "This reinforces that Aqua Guide is a coordination product, not only a status monitor.",
+          "When multiple people are collecting, storing, and using water, confusion about which supply is treated or reserved leads to waste and risk. A shared plan prevents that.",
         steps: [
-          "Copy the summary into the channel or group already used by the household.",
+          "Share the summary with everyone handling water in your household or group.",
           "Confirm everyone understands which water is reserved for direct consumption.",
-          "Replace the summary as soon as conditions change."
+          "Update the plan as soon as conditions change."
         ],
         tone: "green",
         icon: "share"
       }
     ],
     aiSuggestions: [
-      "What is the first step in an advisory?",
-      "How should we protect children first?",
+      "What should I do first in a water advisory?",
+      "How do I protect children when water is limited?",
       "Explain this in Swahili.",
       "What if we only have one clean container?"
     ],
@@ -242,7 +242,7 @@ export const regions = [
     countryIso2: "MZ",
     countryIso3: "MOZ",
     flag: "🇲🇿",
-    utility: "Storm recovery corridors and flood-disrupted neighborhoods",
+    utility: "Coastal city with storm recovery corridors and flood-disrupted neighborhoods",
     recordLabel: "Infrastructure disruption after severe weather",
     coordinates: { lat: -19.8333, lng: 34.85 },
     status: "caution",
@@ -251,15 +251,15 @@ export const regions = [
     metrics: { lead: "4.2", chlorine: "0.4", ph: "7.0", updated: "Apr 10, 6:40 AM" },
     tag: "Flood recovery",
     oneLiner:
-      "Flood recovery scenarios need simple treatment and separation rules while services are stabilizing.",
-    heroTitle: "Guidance designed for recovery periods.",
+      "Flooding can compromise water quality even when the water looks normal. Treatment and separation are essential until infrastructure recovers.",
+    heroTitle: "Water safety during flood recovery in Beira",
     heroDescription:
-      "When services are disrupted after storms or flooding, Aqua Guide keeps the most important household decisions visible and easy to repeat.",
-    summaryTitle: "What households should know",
+      "After storms and flooding, damaged pipes and contaminated groundwater can make previously safe water sources unreliable. This guide covers what to do while services are stabilizing, whether you live here or are passing through.",
+    summaryTitle: "What you need to know",
     summaryText:
-      "Flood-related disruption can raise contamination risk even when water looks normal. Aqua Guide focuses the response on practical household behavior: use treated water for direct consumption, separate drinking water from cleanup water, and wait for the next verified update before assuming the supply has normalized.",
+      "Flood-related disruption can raise contamination risk even when water looks normal. Use treated water for direct consumption, separate drinking water from cleanup water, and wait for verified updates before assuming the supply has returned to normal.",
     quickSummary:
-      "Drink only treated or bottled water, separate drinking water from cleanup water, and wait for the next verified update.",
+      "Drink only treated or bottled water. Keep drinking water separate from cleanup water. Wait for a verified update before resuming normal use.",
     highlights: [
       {
         tone: "caution",
@@ -270,7 +270,7 @@ export const regions = [
       {
         tone: "info",
         title: "Recovery-focused guidance",
-        detail: "The app helps households act while services are still stabilizing.",
+        detail: "During recovery, standard water sources may not be reliable even if they appear to be working.",
         icon: "clock"
       },
       {
@@ -285,19 +285,19 @@ export const regions = [
       { label: "WHO emergency water guidance", icon: "file" },
       { label: "Operational recovery updates", icon: "monitor" }
     ],
-    actionsTitle: "Priority household actions",
-    actionsSubtitle: "Make direct-consumption water easy to identify and protect while systems recover.",
+    actionsTitle: "Water safety essentials",
+    actionsSubtitle: "Protect your drinking water while infrastructure recovers.",
     actions: [
       {
         id: "treat",
         title: "Treat water before drinking",
         description: "Use treated or bottled water for drinking, cooking, and brushing teeth until conditions improve.",
         detail:
-          "The guidance should still be obvious in the first five seconds. This action provides that anchor.",
+          "Floodwater carries sewage, chemicals, and debris into water systems. Even if water pressure returns, the supply may be contaminated until infrastructure is fully repaired and flushed.",
         steps: [
           "Use treated or bottled water for all direct consumption.",
           "Do not trust appearance alone after flooding or storm damage.",
-          "Wait for a newer verified update before normal use resumes."
+          "Wait for a verified update before resuming normal use."
         ],
         tone: "red",
         icon: "alert"
@@ -307,7 +307,7 @@ export const regions = [
         title: "Separate drinking and cleanup water",
         description: "Keep safe water physically separate from cleaning and sanitation use.",
         detail:
-          "A visible separation rule makes the product feel practical and grounded in real household behavior.",
+          "During flood recovery, water is needed for both drinking and cleaning up. Mixing these uses in the same containers is one of the most common ways safe water gets contaminated.",
         steps: [
           "Use different containers for drinking water and cleanup water.",
           "Label or color-code containers when possible.",
@@ -321,7 +321,7 @@ export const regions = [
         title: "Protect medicine and infant use",
         description: "Reserve the safest water for medication, oral rehydration, and infant feeding first.",
         detail:
-          "This keeps the experience family-centered rather than abstract, which is important for trust.",
+          "Contaminated water used for medicine, formula, or wound care can cause infections that are especially dangerous during recovery when medical access may be limited.",
         steps: [
           "Use only treated water for medicine and infant feeding.",
           "Avoid using uncertain water for oral rehydration or wound cleaning.",
@@ -333,11 +333,11 @@ export const regions = [
       {
         id: "share",
         title: "Coordinate with one message",
-        description: "Use the summary to keep family members and volunteers aligned on what is safe right now.",
+        description: "Make sure everyone in your household or group knows what is safe right now.",
         detail:
-          "The sharing flow adds a product moment that reads well in both a presentation and a real household workflow.",
+          "During recovery, conditions change frequently. A single shared summary prevents someone from accidentally using contaminated water because they missed an update.",
         steps: [
-          "Copy the summary into the group's existing communication channel.",
+          "Share the current summary with your household or group.",
           "Confirm which container is the protected drinking-water source.",
           "Replace the guidance when a new verified update comes in."
         ],
@@ -346,10 +346,10 @@ export const regions = [
       }
     ],
     aiSuggestions: [
-      "Why is floodwater risk different?",
-      "How should we separate cleanup water?",
+      "Why is floodwater dangerous even if it looks clean?",
+      "How do I separate drinking water from cleanup water?",
       "Explain this in Portuguese.",
-      "What should we do with medicine water?"
+      "Is it safe to use tap water for medicine right now?"
     ],
     searchAliases: ["beira", "mozambique coast", "2100", "flood recovery"]
   },
@@ -360,7 +360,7 @@ export const regions = [
     countryIso2: "HT",
     countryIso3: "HTI",
     flag: "🇭🇹",
-    utility: "Urban neighborhoods with intermittent service and storage dependence",
+    utility: "Urban neighborhoods with intermittent service and heavy storage dependence",
     recordLabel: "Intermittent access and household storage pressure",
     coordinates: { lat: 18.5944, lng: -72.3074 },
     status: "caution",
@@ -369,32 +369,32 @@ export const regions = [
     metrics: { lead: "4.8", chlorine: "0.3", ph: "7.2", updated: "Apr 10, 9:05 AM" },
     tag: "Urban continuity",
     oneLiner:
-      "Intermittent access changes how families store and protect water, so guidance has to focus on continuity as much as purity.",
-    heroTitle: "Water guidance for interrupted service.",
+      "Interrupted water service means you are relying on stored water more than usual. How you store and separate it determines whether it stays safe.",
+    heroTitle: "Water safety with intermittent service in Port-au-Prince",
     heroDescription:
-      "Aqua Guide helps households manage supply interruptions, storage discipline, and safe reuse rules without drowning them in jargon.",
-    summaryTitle: "What households should know",
+      "Water service in Port-au-Prince is frequently interrupted, forcing residents and visitors to depend on stored water for extended periods. This guide covers safe storage, container discipline, and how to prioritize your supply.",
+    summaryTitle: "What you need to know",
     summaryText:
-      "When service is intermittent, the biggest risks often come from how water is stored and reused inside the household. Aqua Guide keeps the response simple: protect the cleanest available water for direct consumption, use separate containers for lower-priority needs, and make sure the household is working from one shared summary of the current plan.",
+      "When service is intermittent, the biggest risks often come from how water is stored and reused. Protect the cleanest available water for drinking and cooking, use separate containers for lower-priority needs, and make sure everyone handling water is working from the same plan.",
     quickSummary:
-      "Protect the cleanest water for direct consumption, separate containers by use, and keep one shared plan for the household.",
+      "Keep your cleanest water reserved for drinking and cooking. Use separate containers for different purposes. Make sure everyone in your household knows the plan.",
     highlights: [
       {
         tone: "caution",
         title: "Intermittent access pressure",
-        detail: "Households may need to store water longer and reuse containers more often.",
+        detail: "You may need to store water longer and reuse containers more often than usual.",
         icon: "alert"
       },
       {
         tone: "info",
         title: "Storage is central",
-        detail: "Container hygiene and separation rules can shape the real risk profile.",
+        detail: "Container hygiene and separation are often more important than the original source quality.",
         icon: "box"
       },
       {
         tone: "teal",
         title: "Shared understanding matters",
-        detail: "One clear household plan reduces avoidable mistakes.",
+        detail: "One clear plan reduces avoidable mistakes when multiple people are handling water.",
         icon: "share"
       }
     ],
@@ -403,15 +403,15 @@ export const regions = [
       { label: "WHO drinking-water guidance", icon: "file" },
       { label: "Community service continuity notes", icon: "monitor" }
     ],
-    actionsTitle: "Priority household actions",
-    actionsSubtitle: "Protect the cleanest water and avoid cross-use between containers.",
+    actionsTitle: "Water safety essentials",
+    actionsSubtitle: "Safe storage and separation are key when water service is unreliable.",
     actions: [
       {
         id: "treat",
         title: "Reserve the safest water for direct use",
         description: "Keep the cleanest treated water only for drinking, cooking, and medicine.",
         detail:
-          "This action reinforces the product's core value: help households rank water uses when the supply is limited.",
+          "When service is unreliable, it is tempting to use whatever water is available for everything. But reserving your best water for consumption prevents the most serious health risks, even if it means rationing.",
         steps: [
           "Pick the cleanest treated source for drinking and cooking only.",
           "Do not use this protected supply for washing or cleanup.",
@@ -423,9 +423,9 @@ export const regions = [
       {
         id: "store",
         title: "Use separate containers by purpose",
-        description: "Label or mentally assign containers so drinking water stays isolated from general use.",
+        description: "Label or assign containers so drinking water stays isolated from general use.",
         detail:
-          "The product should guide container discipline because that's where households can lose a safe supply quickly.",
+          "Cross-contamination between containers is one of the fastest ways to lose a safe water supply. Dedicating containers to specific uses keeps your drinking water protected even during extended outages.",
         steps: [
           "Dedicate one container to direct consumption only.",
           "Use separate containers for washing, cleaning, or sanitation.",
@@ -439,7 +439,7 @@ export const regions = [
         title: "Prioritize medicine and hydration",
         description: "Use the protected supply first for hydration, medicine, and anyone who is already weak or sick.",
         detail:
-          "This keeps the platform practical, not merely informational, by focusing on hard household tradeoffs.",
+          "Dehydration and medication errors from contaminated water are among the most dangerous outcomes of intermittent service. Directing your safest supply to these uses first is the highest-priority decision.",
         steps: [
           "Use protected water first for medicine, rehydration, and infant care.",
           "Do not dilute medicine or formula with uncertain water.",
@@ -450,12 +450,12 @@ export const regions = [
       },
       {
         id: "share",
-        title: "Keep one household plan",
-        description: "Share the summary so everyone handling water follows the same rules.",
+        title: "Keep one shared plan",
+        description: "Make sure everyone handling water follows the same rules.",
         detail:
-          "A clear plan reduces friction inside the home and gives the product a memorable communication role.",
+          "When multiple people draw from the same containers, one person's mistake can compromise the whole supply. A visible, shared plan prevents that.",
         steps: [
-          "Copy the current summary into the household chat or write it down visibly.",
+          "Share the current plan with your household or group, or write it down somewhere visible.",
           "Clarify which container is the protected drinking-water source.",
           "Update the plan when the service pattern changes."
         ],
@@ -464,10 +464,10 @@ export const regions = [
       }
     ],
     aiSuggestions: [
-      "How should we label stored water?",
-      "What should be saved for medicine use?",
+      "How should I label my water containers?",
+      "Which water should I save for medicine?",
       "Explain this in French.",
-      "What if service returns for only a few hours?"
+      "What should I do when service comes back for only a few hours?"
     ],
     searchAliases: ["haiti", "port au prince", "pap", "urban storage"]
   }
